@@ -6,6 +6,7 @@ import com.example.cablink.repositories.RideRepository;
 import com.example.cablink.repositories.UserRepository;
 import com.example.cablink.request_model.RideCreate;
 import com.example.cablink.response.GenericResponse;
+import jakarta.validation.executable.ValidateOnExecution;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,11 +14,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Optional;
 
 @RestController
 public class RideController {
@@ -35,7 +36,8 @@ public class RideController {
             OAuth2User principal,
             @RequestBody
             @Validated
-            RideCreate rideCreate) {
+            RideCreate rideCreate
+    ) {
         if (rideCreate == null) {
             return new ResponseEntity<GenericResponse>(
                     new GenericResponse( "Error", GenericResponse.ResponseStatus.ERROR), HttpStatus.UNAUTHORIZED
@@ -56,11 +58,21 @@ public class RideController {
             );
         }
 
+
+
+        /*Ride ride = new Ride(new ObjectId(),
+                "Varun's Ride",
+                currentUser,
+                new ArrayList<User>(),
+                1000,
+                4,
+                0
+        )*/
         Ride ride = new Ride(
                 new ObjectId(),
                 rideCreate.name(),
                 currentUser,
-                null,
+                new ArrayList<User>(),
                 rideCreate.price(),
                 rideCreate.seats(),
                 0,
@@ -68,8 +80,156 @@ public class RideController {
                 rideCreate.locationEnd(),
                 rideCreate.dateTime()
         );
+
+        ride = rideRepository.save(ride);
         return new ResponseEntity<GenericResponse>(
-                new GenericResponse( rideRepository.save(ride),  GenericResponse.ResponseStatus.SUCCESS), HttpStatus.CREATED
+                new GenericResponse(ride,  GenericResponse.ResponseStatus.SUCCESS), HttpStatus.CREATED
         );
+    }
+
+    @ValidateOnExecution
+    @GetMapping("/ride/all")
+    public ResponseEntity<GenericResponse> getAllRides (
+            @AuthenticationPrincipal
+            OAuth2User principal
+    ) {
+        if (principal.getAttribute("email") == null || Objects.requireNonNull(principal.getAttribute("email")).toString().isEmpty() || Objects.requireNonNull(
+                principal.getAttribute("email")).toString().isBlank()) {
+            return new ResponseEntity<GenericResponse>(
+                    new GenericResponse("Error", GenericResponse.ResponseStatus.ERROR),HttpStatus.UNAUTHORIZED
+            );
+        }
+
+        final User currentUser = userRepository.findByEmail(Objects.requireNonNull(principal.getAttribute("email")).toString());
+        if (currentUser == null) {
+            return new ResponseEntity<GenericResponse>(new GenericResponse(
+                    "Error",
+                    GenericResponse.ResponseStatus.ERROR
+            ), HttpStatus.UNAUTHORIZED);
+        }
+
+        return new ResponseEntity<GenericResponse>(
+                new GenericResponse(rideRepository.findAll(), GenericResponse.ResponseStatus.SUCCESS), HttpStatus.OK
+        );
+    }
+
+    @GetMapping("/ride/{id}")
+    public ResponseEntity<GenericResponse> getRideDetails (
+            @AuthenticationPrincipal
+            OAuth2User principal,
+
+            @PathVariable
+            ObjectId id
+    ) {
+        if (principal.getAttribute("email") == null || Objects.requireNonNull(principal.getAttribute("email")).toString().isEmpty() || Objects.requireNonNull(
+                principal.getAttribute("email")).toString().isBlank()) {
+            return new ResponseEntity<GenericResponse>(
+                    new GenericResponse("Error", GenericResponse.ResponseStatus.ERROR),HttpStatus.UNAUTHORIZED
+            );
+        }
+
+        final User currentUser = userRepository.findByEmail(Objects.requireNonNull(principal.getAttribute("email")).toString());
+        if (currentUser == null) {
+            return new ResponseEntity<GenericResponse>(new GenericResponse(
+                    "Error",
+                    GenericResponse.ResponseStatus.ERROR
+            ), HttpStatus.UNAUTHORIZED);
+        }
+
+        final Optional<Ride> currentRideOptional = rideRepository.findById(id);
+        return currentRideOptional.map(ride -> new ResponseEntity<GenericResponse>(
+                new GenericResponse(ride, GenericResponse.ResponseStatus.SUCCESS), HttpStatus.OK
+        )).orElseGet(() -> new ResponseEntity<GenericResponse>(
+                new GenericResponse("No Ride with this ID", GenericResponse.ResponseStatus.ERROR), HttpStatus.UNAUTHORIZED)
+        );
+    }
+
+    @GetMapping("/ride/add/{id}")
+    public ResponseEntity<GenericResponse> addToRide (
+            @AuthenticationPrincipal
+            OAuth2User principal,
+
+            @PathVariable
+            ObjectId id
+    ) {
+        if (principal.getAttribute("email") == null || Objects.requireNonNull(principal.getAttribute("email")).toString().isEmpty() || Objects.requireNonNull(
+                principal.getAttribute("email")).toString().isBlank()) {
+            return new ResponseEntity<GenericResponse>(
+                    new GenericResponse("Error", GenericResponse.ResponseStatus.ERROR),HttpStatus.UNAUTHORIZED
+            );
+        }
+
+        final User currentUser = userRepository.findByEmail(Objects.requireNonNull(principal.getAttribute("email")).toString());
+        if (currentUser == null) {
+            return new ResponseEntity<GenericResponse>(new GenericResponse(
+                    "Error",
+                    GenericResponse.ResponseStatus.ERROR
+            ), HttpStatus.UNAUTHORIZED);
+        }
+
+        final Optional<Ride> currentRideOptional = rideRepository.findById(id);
+        if (currentRideOptional.isEmpty()) {
+            return new ResponseEntity<GenericResponse>(
+                    new GenericResponse("No Ride with this ID", GenericResponse.ResponseStatus.ERROR), HttpStatus.UNAUTHORIZED
+            );
+        }
+        else {
+            Ride currentRide = currentRideOptional.get();
+            currentRide.getRiders().add(currentUser);
+            if (currentUser.hashCode() == currentRide.getHost().hashCode()) {
+                return new ResponseEntity<GenericResponse>(
+                new GenericResponse("Host and Rider cannot be same", GenericResponse.ResponseStatus.ERROR), HttpStatus.UNAUTHORIZED
+                );
+            }
+            return new ResponseEntity<GenericResponse>(
+                    new GenericResponse(rideRepository.save(currentRide), GenericResponse.ResponseStatus.SUCCESS), HttpStatus.OK
+                    );
+        }
+    }
+
+
+    @GetMapping("/ride/delete/{id}")
+    public ResponseEntity<GenericResponse> deleteRide (
+            @AuthenticationPrincipal
+            OAuth2User principal,
+
+            @PathVariable
+            ObjectId id
+    ) {
+        if (principal.getAttribute("email") == null || Objects.requireNonNull(principal.getAttribute("email")).toString().isEmpty() || Objects.requireNonNull(
+                principal.getAttribute("email")).toString().isBlank()) {
+            return new ResponseEntity<GenericResponse>(
+                    new GenericResponse("Error", GenericResponse.ResponseStatus.ERROR),HttpStatus.UNAUTHORIZED
+            );
+        }
+
+        final User currentUser = userRepository.findByEmail(Objects.requireNonNull(principal.getAttribute("email")).toString());
+        if (currentUser == null) {
+            return new ResponseEntity<GenericResponse>(new GenericResponse(
+                    "Error",
+                    GenericResponse.ResponseStatus.ERROR
+            ), HttpStatus.UNAUTHORIZED);
+        }
+
+
+        final Optional<Ride> currentRideOptional = rideRepository.findById(id);
+        if (currentRideOptional.isEmpty()) {
+            return new ResponseEntity<GenericResponse>(
+                    new GenericResponse("No Ride with this ID", GenericResponse.ResponseStatus.ERROR), HttpStatus.UNAUTHORIZED
+            );
+        }
+        else {
+            Ride currentRide = currentRideOptional.get();
+            if (currentUser.hashCode() != currentRide.getHost().hashCode()) {
+                return new ResponseEntity<GenericResponse>(
+                        new GenericResponse("Not Authorized to delete", GenericResponse.ResponseStatus.ERROR), HttpStatus.UNAUTHORIZED
+                );
+            }
+
+            rideRepository.deleteById(id);
+            return new ResponseEntity<GenericResponse>(
+                    new GenericResponse(currentRide, GenericResponse.ResponseStatus.SUCCESS), HttpStatus.OK
+            );
+        }
     }
 }

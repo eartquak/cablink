@@ -8,7 +8,6 @@ import java.math.BigInteger;
 
 public record UserEdit (
         @NotBlank
-        @NotEmpty
         String name,
 
         @Digits(integer = 10, fraction = 0)

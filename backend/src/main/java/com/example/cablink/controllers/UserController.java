@@ -1,6 +1,8 @@
 package com.example.cablink.controllers;
 
+import com.example.cablink.models.Ride;
 import com.example.cablink.models.User;
+import com.example.cablink.repositories.RideRepository;
 import com.example.cablink.repositories.UserRepository;
 
 import com.example.cablink.request_model.UserCreate;
@@ -27,7 +29,11 @@ public class UserController {
     @Autowired
     UserRepository userRepository;
 
-    @PostMapping(path = "/user/create")
+    @Autowired
+    RideRepository rideRepository;
+
+
+    @PostMapping("/user/create")
     public ResponseEntity<GenericResponse> create(
             @AuthenticationPrincipal
             OAuth2User principal,
@@ -70,16 +76,6 @@ public class UserController {
         );
     }
 
-    @GetMapping("/user/rides")
-    public ResponseEntity<GenericResponse> getRides (
-            @AuthenticationPrincipal
-            OAuth2User principal
-    ) {
-        return new ResponseEntity<GenericResponse>(
-                new GenericResponse("TODO", GenericResponse.ResponseStatus.SUCCESS), HttpStatus.OK
-        );
-    }
-
     @GetMapping("/user/me")
     public ResponseEntity<GenericResponse> getMe (
             @AuthenticationPrincipal
@@ -103,7 +99,7 @@ public class UserController {
         );
     }
 
-    @PostMapping(path = "/user/edit")
+    @PostMapping("/user/edit")
     public ResponseEntity<GenericResponse> edit(
             @AuthenticationPrincipal
             OAuth2User principal,
@@ -158,6 +154,68 @@ public class UserController {
                 userRepository.save(user),
                 GenericResponse.ResponseStatus.SUCCESS
         ), HttpStatus.OK);
+    }
+
+    @GetMapping("/user/rides")
+    public ResponseEntity<GenericResponse> getUserRides(
+            @AuthenticationPrincipal
+            OAuth2User principal
+    ) {
+        if (principal.getAttribute("email") == null || Objects.requireNonNull(principal.getAttribute("email")).toString().isEmpty() || Objects.requireNonNull(
+                principal.getAttribute("email")).toString().isBlank()) {
+            return new ResponseEntity<GenericResponse>(
+                    new GenericResponse(
+                            "Error",
+                            GenericResponse.ResponseStatus.ERROR
+                    ),
+                    HttpStatus.UNAUTHORIZED
+            );
+        }
+
+        final User currentUser = userRepository.findByEmail(Objects.requireNonNull(principal.getAttribute("email")).toString());
+        if (currentUser == null) {
+            return new ResponseEntity<GenericResponse>(new GenericResponse(
+                    "Error",
+                    GenericResponse.ResponseStatus.ERROR
+            ), HttpStatus.UNAUTHORIZED);
+        }
+
+        ObjectId id = currentUser.getId();
+        System.out.println(id);
+
+        //TODO: Implement This
+        return new ResponseEntity<GenericResponse>(new GenericResponse(
+                rideRepository.findRidesByHost(id), GenericResponse.ResponseStatus.SUCCESS), HttpStatus.OK
+        );
+    }
+
+
+    @GetMapping("/user/delete")
+    public ResponseEntity<GenericResponse> deleteMe (
+            @AuthenticationPrincipal
+            OAuth2User principal
+    ) {
+        if (principal.getAttribute("email") == null || Objects.requireNonNull(principal.getAttribute("email")).toString().isEmpty() || Objects.requireNonNull(
+                principal.getAttribute("email")).toString().isBlank()) {
+            return new ResponseEntity<GenericResponse>(
+                    new GenericResponse("Error", GenericResponse.ResponseStatus.ERROR), HttpStatus.UNAUTHORIZED
+            );
+        }
+
+        final User currentUser = userRepository.findByEmail(Objects.requireNonNull(principal.getAttribute("email")).toString());
+        if (currentUser == null) {
+            return new ResponseEntity<GenericResponse>(
+                    new GenericResponse("Could not find user", GenericResponse.ResponseStatus.ERROR), HttpStatus.NOT_FOUND
+            );
+        }
+
+
+        ObjectId id = currentUser.getId();
+        userRepository.deleteById(id);
+
+        return new ResponseEntity<GenericResponse>(
+                new GenericResponse( currentUser, GenericResponse.ResponseStatus.SUCCESS), HttpStatus.OK
+        );
     }
 
 //    @GetMapping("/user/all")

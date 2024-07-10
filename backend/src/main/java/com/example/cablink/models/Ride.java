@@ -12,7 +12,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
 
 @Document(collection = "rides")
 @Data
@@ -22,7 +23,7 @@ import java.util.List;
 public class Ride {
 
     @Id
-    private ObjectId Id;
+    private ObjectId id;
 
     private String name;
 
@@ -30,7 +31,7 @@ public class Ride {
     private User host;
 
     @DocumentReference
-    private List<User> riders;
+    private ArrayList<User> riders;
 
     private double price;
     private int seats;
