@@ -29,7 +29,7 @@ public class RideController {
     UserRepository userRepository;
 
 
-    @PostMapping(path = "/user/create")
+    @PostMapping(path = "/ride/create")
     public ResponseEntity<GenericResponse> create(
             @AuthenticationPrincipal
             OAuth2User principal,
