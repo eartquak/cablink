@@ -50,6 +50,12 @@ public class RideController {
 
         final User currentUser = userRepository.findByEmail(Objects.requireNonNull(principal.getAttribute("email")).toString());
 
+        if (currentUser == null) {
+            return new ResponseEntity<GenericResponse>(
+                    new GenericResponse("Could not find user", GenericResponse.ResponseStatus.ERROR), HttpStatus.NOT_FOUND
+            );
+        }
+
         Ride ride = new Ride(
                 new ObjectId(),
                 rideCreate.name(),
