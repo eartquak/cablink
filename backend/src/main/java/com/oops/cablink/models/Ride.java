@@ -1,4 +1,4 @@
-package com.example.cablink.models;
+package com.oops.cablink.models;
 
 
 import lombok.AllArgsConstructor;
@@ -12,7 +12,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 
 @Document(collection = "rides")

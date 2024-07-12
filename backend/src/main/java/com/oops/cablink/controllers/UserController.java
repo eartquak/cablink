@@ -1,13 +1,12 @@
-package com.example.cablink.controllers;
+package com.oops.cablink.controllers;
 
-import com.example.cablink.models.Ride;
-import com.example.cablink.models.User;
-import com.example.cablink.repositories.RideRepository;
-import com.example.cablink.repositories.UserRepository;
+import com.oops.cablink.repositories.UserRepository;
+import com.oops.cablink.models.User;
+import com.oops.cablink.repositories.RideRepository;
 
-import com.example.cablink.request_model.UserCreate;
-import com.example.cablink.request_model.UserEdit;
-import com.example.cablink.response.GenericResponse;
+import com.oops.cablink.request.UserCreate;
+import com.oops.cablink.request.UserEdit;
+import com.oops.cablink.response.GenericResponse;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

@@ -1,11 +1,11 @@
-package com.example.cablink.controllers;
+package com.oops.cablink.controllers;
 
-import com.example.cablink.models.Ride;
-import com.example.cablink.models.User;
-import com.example.cablink.repositories.RideRepository;
-import com.example.cablink.repositories.UserRepository;
-import com.example.cablink.request_model.RideCreate;
-import com.example.cablink.response.GenericResponse;
+import com.oops.cablink.models.Ride;
+import com.oops.cablink.models.User;
+import com.oops.cablink.repositories.RideRepository;
+import com.oops.cablink.repositories.UserRepository;
+import com.oops.cablink.response.GenericResponse;
+import com.oops.cablink.request.RideCreate;
 import jakarta.validation.executable.ValidateOnExecution;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -173,18 +173,20 @@ public class RideController {
                     new GenericResponse("No Ride with this ID", GenericResponse.ResponseStatus.ERROR), HttpStatus.UNAUTHORIZED
             );
         }
-        else {
-            Ride currentRide = currentRideOptional.get();
-            currentRide.getRiders().add(currentUser);
-            if (currentUser.hashCode() == currentRide.getHost().hashCode()) {
-                return new ResponseEntity<GenericResponse>(
-                new GenericResponse("Host and Rider cannot be same", GenericResponse.ResponseStatus.ERROR), HttpStatus.UNAUTHORIZED
-                );
-            }
+        Ride currentRide = currentRideOptional.get();
+        currentRide.getRiders().add(currentUser);
+        currentRide.setSeatsFilled(currentRide.getSeatsFilled()+1);
+
+        if (currentUser.hashCode() == currentRide.getHost().hashCode()) {
             return new ResponseEntity<GenericResponse>(
-                    new GenericResponse(rideRepository.save(currentRide), GenericResponse.ResponseStatus.SUCCESS), HttpStatus.OK
-                    );
+                    new GenericResponse("Host and Rider cannot be same", GenericResponse.ResponseStatus.ERROR), HttpStatus.UNAUTHORIZED
+            );
         }
+
+
+        return new ResponseEntity<GenericResponse>(
+                new GenericResponse(rideRepository.save(currentRide), GenericResponse.ResponseStatus.SUCCESS), HttpStatus.OK
+        );
     }
 
 

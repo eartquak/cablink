@@ -1,4 +1,4 @@
-package com.example.cablink.request_model;
+package com.oops.cablink.request;
 
 import jakarta.validation.constraints.*;
 import org.geojson.GeoJsonObject;

@@ -1,4 +1,4 @@
-package com.example.cablink.response;
+package com.oops.cablink.response;
 
 import lombok.AllArgsConstructor;
 

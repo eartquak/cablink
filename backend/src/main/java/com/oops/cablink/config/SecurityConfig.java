@@ -1,4 +1,4 @@
-package com.example.cablink.config;
+package com.oops.cablink.config;
 
 
 import org.springframework.context.annotation.Bean;

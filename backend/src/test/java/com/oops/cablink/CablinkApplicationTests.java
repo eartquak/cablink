@@ -1,4 +1,4 @@
-package com.example.cablink;
+package com.oops.cablink;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

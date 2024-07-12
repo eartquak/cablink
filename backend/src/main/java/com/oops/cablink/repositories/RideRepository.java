@@ -1,7 +1,7 @@
-package com.example.cablink.repositories;
+package com.oops.cablink.repositories;
 
-import com.example.cablink.models.Ride;
-import com.example.cablink.models.User;
+import com.oops.cablink.models.Ride;
+import com.oops.cablink.models.User;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
