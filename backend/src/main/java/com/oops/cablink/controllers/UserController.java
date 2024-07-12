@@ -1,5 +1,6 @@
 package com.oops.cablink.controllers;
 
+import com.oops.cablink.Auth;
 import com.oops.cablink.repositories.UserRepository;
 import com.oops.cablink.models.User;
 import com.oops.cablink.repositories.RideRepository;
@@ -30,6 +31,9 @@ public class UserController {
 
     @Autowired
     RideRepository rideRepository;
+
+    @Autowired
+    Auth auth;
 
 
     @PostMapping("/user/create")
@@ -86,7 +90,7 @@ public class UserController {
                 new GenericResponse("Error", GenericResponse.ResponseStatus.ERROR), HttpStatus.UNAUTHORIZED
         );
     }
-        final User currentUser = userRepository.findByEmail(Objects.requireNonNull(principal.getAttribute("email")).toString());
+        final User currentUser = userRepository.findByEmail(Objects.requireNonNull(principal.getAttribute("email")).toString()).blockFirst();
 
         if (currentUser == null) {
             return new ResponseEntity<GenericResponse>(
@@ -115,7 +119,7 @@ public class UserController {
                     HttpStatus.UNAUTHORIZED
             );
         }
-        final User currentUser = userRepository.findByEmail(Objects.requireNonNull(principal.getAttribute("email")).toString());
+        final User currentUser = userRepository.findByEmail(Objects.requireNonNull(principal.getAttribute("email")).toString()).blockFirst();
         if (currentUser == null) {
             return new ResponseEntity<GenericResponse>(new GenericResponse(
                     "Error",
@@ -171,7 +175,7 @@ public class UserController {
             );
         }
 
-        final User currentUser = userRepository.findByEmail(Objects.requireNonNull(principal.getAttribute("email")).toString());
+        final User currentUser = userRepository.findByEmail(Objects.requireNonNull(principal.getAttribute("email")).toString()).blockFirst();
         if (currentUser == null) {
             return new ResponseEntity<GenericResponse>(new GenericResponse(
                     "Error",
@@ -201,7 +205,7 @@ public class UserController {
             );
         }
 
-        final User currentUser = userRepository.findByEmail(Objects.requireNonNull(principal.getAttribute("email")).toString());
+        final User currentUser = userRepository.findByEmail(Objects.requireNonNull(principal.getAttribute("email")).toString()).blockFirst();
         if (currentUser == null) {
             return new ResponseEntity<GenericResponse>(
                     new GenericResponse("Could not find user", GenericResponse.ResponseStatus.ERROR), HttpStatus.NOT_FOUND

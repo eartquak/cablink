@@ -1,19 +1,18 @@
 package com.oops.cablink.controllers;
 
+import com.oops.cablink.Auth;
 import com.oops.cablink.models.Ride;
 import com.oops.cablink.models.User;
 import com.oops.cablink.repositories.RideRepository;
 import com.oops.cablink.repositories.UserRepository;
 import com.oops.cablink.response.GenericResponse;
 import com.oops.cablink.request.RideCreate;
-import jakarta.validation.executable.ValidateOnExecution;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -29,13 +28,15 @@ public class RideController {
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    Auth auth;
+
 
     @PostMapping(path = "/ride/create")
     public ResponseEntity<GenericResponse> create(
             @AuthenticationPrincipal
             OAuth2User principal,
             @RequestBody
-            @Validated
             RideCreate rideCreate
     ) {
         if (rideCreate == null) {
@@ -43,31 +44,15 @@ public class RideController {
                     new GenericResponse( "Error", GenericResponse.ResponseStatus.ERROR), HttpStatus.UNAUTHORIZED
             );
         }
-        if (principal.getAttribute("email") == null || Objects.requireNonNull(principal.getAttribute("email")).toString().isEmpty() || Objects.requireNonNull(
-                principal.getAttribute("email")).toString().isBlank()) {
-            return new ResponseEntity<GenericResponse>(
-                    new GenericResponse("Error", GenericResponse.ResponseStatus.ERROR),HttpStatus.UNAUTHORIZED
-            );
+
+
+        GenericResponse userResponse = auth.getUser(principal);
+        if (userResponse.status == GenericResponse.ResponseStatus.ERROR) {
+            return new ResponseEntity<GenericResponse>(userResponse, HttpStatus.UNAUTHORIZED);
         }
 
-        final User currentUser = userRepository.findByEmail(Objects.requireNonNull(principal.getAttribute("email")).toString());
+        final User currentUser = (User)userResponse.data;
 
-        if (currentUser == null) {
-            return new ResponseEntity<GenericResponse>(
-                    new GenericResponse("Could not find user", GenericResponse.ResponseStatus.ERROR), HttpStatus.NOT_FOUND
-            );
-        }
-
-
-
-        /*Ride ride = new Ride(new ObjectId(),
-                "Varun's Ride",
-                currentUser,
-                new ArrayList<User>(),
-                1000,
-                4,
-                0
-        )*/
         Ride ride = new Ride(
                 new ObjectId(),
                 rideCreate.name(),
@@ -81,32 +66,24 @@ public class RideController {
                 rideCreate.dateTime()
         );
 
-        ride = rideRepository.save(ride);
+        ride = rideRepository.save(ride).block();
         return new ResponseEntity<GenericResponse>(
                 new GenericResponse(ride,  GenericResponse.ResponseStatus.SUCCESS), HttpStatus.CREATED
         );
     }
 
-    @ValidateOnExecution
     @GetMapping("/ride/all")
     public ResponseEntity<GenericResponse> getAllRides (
             @AuthenticationPrincipal
             OAuth2User principal
     ) {
-        if (principal.getAttribute("email") == null || Objects.requireNonNull(principal.getAttribute("email")).toString().isEmpty() || Objects.requireNonNull(
-                principal.getAttribute("email")).toString().isBlank()) {
-            return new ResponseEntity<GenericResponse>(
-                    new GenericResponse("Error", GenericResponse.ResponseStatus.ERROR),HttpStatus.UNAUTHORIZED
-            );
+
+        GenericResponse userResponse = auth.getUser(principal);
+        if (userResponse.status == GenericResponse.ResponseStatus.ERROR) {
+            return new ResponseEntity<GenericResponse>(userResponse, HttpStatus.UNAUTHORIZED);
         }
 
-        final User currentUser = userRepository.findByEmail(Objects.requireNonNull(principal.getAttribute("email")).toString());
-        if (currentUser == null) {
-            return new ResponseEntity<GenericResponse>(new GenericResponse(
-                    "Error",
-                    GenericResponse.ResponseStatus.ERROR
-            ), HttpStatus.UNAUTHORIZED);
-        }
+        final User currentUser = (User)userResponse.data;
 
         return new ResponseEntity<GenericResponse>(
                 new GenericResponse(rideRepository.findAll(), GenericResponse.ResponseStatus.SUCCESS), HttpStatus.OK
@@ -121,22 +98,15 @@ public class RideController {
             @PathVariable
             ObjectId id
     ) {
-        if (principal.getAttribute("email") == null || Objects.requireNonNull(principal.getAttribute("email")).toString().isEmpty() || Objects.requireNonNull(
-                principal.getAttribute("email")).toString().isBlank()) {
-            return new ResponseEntity<GenericResponse>(
-                    new GenericResponse("Error", GenericResponse.ResponseStatus.ERROR),HttpStatus.UNAUTHORIZED
-            );
+
+        GenericResponse userResponse = auth.getUser(principal);
+        if (userResponse.status == GenericResponse.ResponseStatus.ERROR) {
+            return new ResponseEntity<GenericResponse>(userResponse, HttpStatus.UNAUTHORIZED);
         }
 
-        final User currentUser = userRepository.findByEmail(Objects.requireNonNull(principal.getAttribute("email")).toString());
-        if (currentUser == null) {
-            return new ResponseEntity<GenericResponse>(new GenericResponse(
-                    "Error",
-                    GenericResponse.ResponseStatus.ERROR
-            ), HttpStatus.UNAUTHORIZED);
-        }
+        final User currentUser = (User)userResponse.data;
 
-        final Optional<Ride> currentRideOptional = rideRepository.findById(id);
+        final Optional<Ride> currentRideOptional = rideRepository.findById(id).blockOptional();
         return currentRideOptional.map(ride -> new ResponseEntity<GenericResponse>(
                 new GenericResponse(ride, GenericResponse.ResponseStatus.SUCCESS), HttpStatus.OK
         )).orElseGet(() -> new ResponseEntity<GenericResponse>(
@@ -152,22 +122,15 @@ public class RideController {
             @PathVariable
             ObjectId id
     ) {
-        if (principal.getAttribute("email") == null || Objects.requireNonNull(principal.getAttribute("email")).toString().isEmpty() || Objects.requireNonNull(
-                principal.getAttribute("email")).toString().isBlank()) {
-            return new ResponseEntity<GenericResponse>(
-                    new GenericResponse("Error", GenericResponse.ResponseStatus.ERROR),HttpStatus.UNAUTHORIZED
-            );
+
+        GenericResponse userResponse = auth.getUser(principal);
+        if (userResponse.status == GenericResponse.ResponseStatus.ERROR) {
+            return new ResponseEntity<GenericResponse>(userResponse, HttpStatus.UNAUTHORIZED);
         }
 
-        final User currentUser = userRepository.findByEmail(Objects.requireNonNull(principal.getAttribute("email")).toString());
-        if (currentUser == null) {
-            return new ResponseEntity<GenericResponse>(new GenericResponse(
-                    "Error",
-                    GenericResponse.ResponseStatus.ERROR
-            ), HttpStatus.UNAUTHORIZED);
-        }
+        final User currentUser = (User)userResponse.data;
 
-        final Optional<Ride> currentRideOptional = rideRepository.findById(id);
+        final Optional<Ride> currentRideOptional = rideRepository.findById(id).blockOptional();
         if (currentRideOptional.isEmpty()) {
             return new ResponseEntity<GenericResponse>(
                     new GenericResponse("No Ride with this ID", GenericResponse.ResponseStatus.ERROR), HttpStatus.UNAUTHORIZED
@@ -198,23 +161,16 @@ public class RideController {
             @PathVariable
             ObjectId id
     ) {
-        if (principal.getAttribute("email") == null || Objects.requireNonNull(principal.getAttribute("email")).toString().isEmpty() || Objects.requireNonNull(
-                principal.getAttribute("email")).toString().isBlank()) {
-            return new ResponseEntity<GenericResponse>(
-                    new GenericResponse("Error", GenericResponse.ResponseStatus.ERROR),HttpStatus.UNAUTHORIZED
-            );
+
+        GenericResponse userResponse = auth.getUser(principal);
+        if (userResponse.status == GenericResponse.ResponseStatus.ERROR) {
+            return new ResponseEntity<GenericResponse>(userResponse, HttpStatus.UNAUTHORIZED);
         }
 
-        final User currentUser = userRepository.findByEmail(Objects.requireNonNull(principal.getAttribute("email")).toString());
-        if (currentUser == null) {
-            return new ResponseEntity<GenericResponse>(new GenericResponse(
-                    "Error",
-                    GenericResponse.ResponseStatus.ERROR
-            ), HttpStatus.UNAUTHORIZED);
-        }
+        final User currentUser = (User)userResponse.data;
 
 
-        final Optional<Ride> currentRideOptional = rideRepository.findById(id);
+        final Optional<Ride> currentRideOptional = rideRepository.findById(id).blockOptional();
         if (currentRideOptional.isEmpty()) {
             return new ResponseEntity<GenericResponse>(
                     new GenericResponse("No Ride with this ID", GenericResponse.ResponseStatus.ERROR), HttpStatus.UNAUTHORIZED
