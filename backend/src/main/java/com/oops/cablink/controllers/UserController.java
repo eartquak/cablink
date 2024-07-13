@@ -1,6 +1,6 @@
 package com.oops.cablink.controllers;
 
-import com.oops.cablink.Auth;
+import com.oops.cablink.services.UserService;
 import com.oops.cablink.repositories.UserRepository;
 import com.oops.cablink.models.User;
 import com.oops.cablink.repositories.RideRepository;
@@ -33,7 +33,7 @@ public class UserController {
     RideRepository rideRepository;
 
     @Autowired
-    Auth auth;
+    UserService userService;
 
 
     @PostMapping("/user/create")
@@ -45,26 +45,26 @@ public class UserController {
             UserCreate userCreate) {
         if (userCreate == null) {
             return new ResponseEntity<GenericResponse>(
-                    new GenericResponse( "Error", GenericResponse.ResponseStatus.ERROR), HttpStatus.UNAUTHORIZED
+                    new GenericResponse( "", HttpStatus.UNAUTHORIZED), HttpStatus.UNAUTHORIZED
             );
         }
         if (principal.getAttribute("email") == null || Objects.requireNonNull(principal.getAttribute("email")).toString().isEmpty() || Objects.requireNonNull(
                 principal.getAttribute("email")).toString().isBlank()) {
             return new ResponseEntity<GenericResponse>(
-                    new GenericResponse("Error", GenericResponse.ResponseStatus.ERROR),HttpStatus.UNAUTHORIZED
+                    new GenericResponse("Error", HttpStatus.UNAUTHORIZED),HttpStatus.UNAUTHORIZED
             );
         }
 
         if (principal.getAttribute("name") == null || Objects.requireNonNull(principal.getAttribute("name")).toString().isEmpty() || Objects.requireNonNull(
                 principal.getAttribute("name")).toString().isBlank()) {
             return new ResponseEntity<GenericResponse>(
-                    new GenericResponse("Error", GenericResponse.ResponseStatus.ERROR),HttpStatus.UNAUTHORIZED
+                    new GenericResponse("Error", HttpStatus.UNAUTHORIZED),HttpStatus.UNAUTHORIZED
             );
         }
 
-        if (userRepository.findByEmail(Objects.requireNonNull(principal.getAttribute("email")).toString()) != null) {
+        if (userRepository.findByEmail(Objects.requireNonNull(principal.getAttribute("email")).toString()).blockFirst() != null) {
             return new ResponseEntity<GenericResponse>(
-                    new GenericResponse( "Error", GenericResponse.ResponseStatus.ERROR),HttpStatus.BAD_REQUEST
+                    new GenericResponse( "Error", HttpStatus.UNAUTHORIZED),HttpStatus.BAD_REQUEST
             );
         }
 
@@ -74,8 +74,9 @@ public class UserController {
                 Objects.requireNonNull(principal.getAttribute("email")).toString(),
                 userCreate.phNo()
         );
+
         return new ResponseEntity<GenericResponse>(
-                new GenericResponse( userRepository.save(user),  GenericResponse.ResponseStatus.SUCCESS), HttpStatus.CREATED
+                new GenericResponse( userRepository.save(user).block(),  HttpStatus.CREATED), HttpStatus.CREATED
         );
     }
 
@@ -84,21 +85,15 @@ public class UserController {
             @AuthenticationPrincipal
             OAuth2User principal
     ) {
-        if (principal.getAttribute("email") == null || Objects.requireNonNull(principal.getAttribute("email")).toString().isEmpty() || Objects.requireNonNull(
-            principal.getAttribute("email")).toString().isBlank()) {
-        return new ResponseEntity<GenericResponse>(
-                new GenericResponse("Error", GenericResponse.ResponseStatus.ERROR), HttpStatus.UNAUTHORIZED
-        );
-    }
-        final User currentUser = userRepository.findByEmail(Objects.requireNonNull(principal.getAttribute("email")).toString()).blockFirst();
-
-        if (currentUser == null) {
-            return new ResponseEntity<GenericResponse>(
-                    new GenericResponse("Could not find user", GenericResponse.ResponseStatus.ERROR), HttpStatus.NOT_FOUND
-            );
+        GenericResponse userResponse = userService.getUser(principal);
+        if (userResponse.httpStatus != HttpStatus.OK) {
+            return new ResponseEntity<GenericResponse>(userResponse, userResponse.httpStatus);
         }
+
+        final User currentUser = (User)userResponse.data;
+
         return new ResponseEntity<GenericResponse>(
-                new GenericResponse( currentUser, GenericResponse.ResponseStatus.SUCCESS), HttpStatus.OK
+                new GenericResponse( currentUser, HttpStatus.OK), HttpStatus.OK
         );
     }
 
@@ -109,28 +104,19 @@ public class UserController {
             @RequestBody
             @Validated
             UserEdit userEdit) {
-        if (principal.getAttribute("email") == null || Objects.requireNonNull(principal.getAttribute("email")).toString().isEmpty() || Objects.requireNonNull(
-                principal.getAttribute("email")).toString().isBlank()) {
-            return new ResponseEntity<GenericResponse>(
-                    new GenericResponse(
-                            "Error",
-                            GenericResponse.ResponseStatus.ERROR
-                    ),
-                    HttpStatus.UNAUTHORIZED
-            );
+
+        GenericResponse userResponse = userService.getUser(principal);
+        if (userResponse.httpStatus != HttpStatus.OK) {
+            return new ResponseEntity<GenericResponse>(userResponse, userResponse.httpStatus);
         }
-        final User currentUser = userRepository.findByEmail(Objects.requireNonNull(principal.getAttribute("email")).toString()).blockFirst();
-        if (currentUser == null) {
-            return new ResponseEntity<GenericResponse>(new GenericResponse(
-                    "Error",
-                    GenericResponse.ResponseStatus.ERROR
-            ), HttpStatus.UNAUTHORIZED);
-        }
+
+        final User currentUser = (User)userResponse.data;
+
         if (userEdit == null) {
             return new ResponseEntity<GenericResponse>(
                     new GenericResponse(
                             "Error",
-                            GenericResponse.ResponseStatus.ERROR
+                            HttpStatus.UNAUTHORIZED
                     ),
                     HttpStatus.BAD_REQUEST
             );
@@ -148,14 +134,14 @@ public class UserController {
 
         User user = new User(
                 currentUser.getId(),
-                currentUser.getName(),
+                newName,
                 currentUser.getEmail(),
                 newPhNo
         );
 
         return new ResponseEntity<GenericResponse>(new GenericResponse(
                 userRepository.save(user),
-                GenericResponse.ResponseStatus.SUCCESS
+                HttpStatus.OK
         ), HttpStatus.OK);
     }
 
@@ -164,22 +150,18 @@ public class UserController {
             @AuthenticationPrincipal
             OAuth2User principal
     ) {
-        if (principal.getAttribute("email") == null || Objects.requireNonNull(principal.getAttribute("email")).toString().isEmpty() || Objects.requireNonNull(
-                principal.getAttribute("email")).toString().isBlank()) {
-            return new ResponseEntity<GenericResponse>(
-                    new GenericResponse(
-                            "Error",
-                            GenericResponse.ResponseStatus.ERROR
-                    ),
-                    HttpStatus.UNAUTHORIZED
-            );
+
+        GenericResponse userResponse = userService.getUser(principal);
+        if (userResponse.httpStatus != HttpStatus.OK) {
+            return new ResponseEntity<GenericResponse>(userResponse, userResponse.httpStatus);
         }
 
-        final User currentUser = userRepository.findByEmail(Objects.requireNonNull(principal.getAttribute("email")).toString()).blockFirst();
+        final User currentUser = (User)userResponse.data;
+
         if (currentUser == null) {
             return new ResponseEntity<GenericResponse>(new GenericResponse(
                     "Error",
-                    GenericResponse.ResponseStatus.ERROR
+                    HttpStatus.UNAUTHORIZED
             ), HttpStatus.UNAUTHORIZED);
         }
 
@@ -188,7 +170,7 @@ public class UserController {
 
         //TODO: Implement This
         return new ResponseEntity<GenericResponse>(new GenericResponse(
-                rideRepository.findRidesByHost(id), GenericResponse.ResponseStatus.SUCCESS), HttpStatus.OK
+                rideRepository.findRidesByHost(id), HttpStatus.OK), HttpStatus.OK
         );
     }
 
@@ -198,17 +180,17 @@ public class UserController {
             @AuthenticationPrincipal
             OAuth2User principal
     ) {
-        if (principal.getAttribute("email") == null || Objects.requireNonNull(principal.getAttribute("email")).toString().isEmpty() || Objects.requireNonNull(
-                principal.getAttribute("email")).toString().isBlank()) {
-            return new ResponseEntity<GenericResponse>(
-                    new GenericResponse("Error", GenericResponse.ResponseStatus.ERROR), HttpStatus.UNAUTHORIZED
-            );
+
+        GenericResponse userResponse = userService.getUser(principal);
+        if (userResponse.httpStatus != HttpStatus.OK) {
+            return new ResponseEntity<GenericResponse>(userResponse, userResponse.httpStatus);
         }
 
-        final User currentUser = userRepository.findByEmail(Objects.requireNonNull(principal.getAttribute("email")).toString()).blockFirst();
+        final User currentUser = (User)userResponse.data;
+
         if (currentUser == null) {
             return new ResponseEntity<GenericResponse>(
-                    new GenericResponse("Could not find user", GenericResponse.ResponseStatus.ERROR), HttpStatus.NOT_FOUND
+                    new GenericResponse("Could not find user", HttpStatus.UNAUTHORIZED), HttpStatus.NOT_FOUND
             );
         }
 
@@ -217,17 +199,7 @@ public class UserController {
         userRepository.deleteById(id);
 
         return new ResponseEntity<GenericResponse>(
-                new GenericResponse( currentUser, GenericResponse.ResponseStatus.SUCCESS), HttpStatus.OK
+                new GenericResponse( currentUser, HttpStatus.OK), HttpStatus.OK
         );
     }
-
-//    @GetMapping("/user/all")
-//    public ResponseEntity<GenericResponse> getAll (
-//            @AuthenticationPrincipal
-//            OAuth2User principal
-//    ) {
-//        return new ResponseEntity<GenericResponse>(
-//                new GenericResponse(userRepository.findAll(), GenericResponse.ResponseStatus.SUCCESS), HttpStatus.OK
-//        );
-//    }
 }

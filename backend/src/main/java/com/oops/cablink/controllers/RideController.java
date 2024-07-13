@@ -1,6 +1,6 @@
 package com.oops.cablink.controllers;
 
-import com.oops.cablink.Auth;
+import com.oops.cablink.services.UserService;
 import com.oops.cablink.models.Ride;
 import com.oops.cablink.models.User;
 import com.oops.cablink.repositories.RideRepository;
@@ -16,7 +16,6 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -26,13 +25,10 @@ public class RideController {
     RideRepository rideRepository;
 
     @Autowired
-    UserRepository userRepository;
-
-    @Autowired
-    Auth auth;
+    UserService userService;
 
 
-    @PostMapping(path = "/ride/create")
+    @PostMapping("/ride/create")
     public ResponseEntity<GenericResponse> create(
             @AuthenticationPrincipal
             OAuth2User principal,
@@ -41,14 +37,14 @@ public class RideController {
     ) {
         if (rideCreate == null) {
             return new ResponseEntity<GenericResponse>(
-                    new GenericResponse( "Error", GenericResponse.ResponseStatus.ERROR), HttpStatus.UNAUTHORIZED
+                    new GenericResponse( "Error", HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST
             );
         }
 
 
-        GenericResponse userResponse = auth.getUser(principal);
-        if (userResponse.status == GenericResponse.ResponseStatus.ERROR) {
-            return new ResponseEntity<GenericResponse>(userResponse, HttpStatus.UNAUTHORIZED);
+        GenericResponse userResponse = userService.getUser(principal);
+        if (userResponse.httpStatus != HttpStatus.OK) {
+            return new ResponseEntity<GenericResponse>(userResponse, userResponse.httpStatus);
         }
 
         final User currentUser = (User)userResponse.data;
@@ -68,7 +64,7 @@ public class RideController {
 
         ride = rideRepository.save(ride).block();
         return new ResponseEntity<GenericResponse>(
-                new GenericResponse(ride,  GenericResponse.ResponseStatus.SUCCESS), HttpStatus.CREATED
+                new GenericResponse(ride,  HttpStatus.CREATED), HttpStatus.CREATED
         );
     }
 
@@ -78,15 +74,15 @@ public class RideController {
             OAuth2User principal
     ) {
 
-        GenericResponse userResponse = auth.getUser(principal);
-        if (userResponse.status == GenericResponse.ResponseStatus.ERROR) {
-            return new ResponseEntity<GenericResponse>(userResponse, HttpStatus.UNAUTHORIZED);
+        GenericResponse userResponse = userService.getUser(principal);
+        if (userResponse.httpStatus != HttpStatus.OK) {
+            return new ResponseEntity<GenericResponse>(userResponse, userResponse.httpStatus);
         }
 
         final User currentUser = (User)userResponse.data;
 
         return new ResponseEntity<GenericResponse>(
-                new GenericResponse(rideRepository.findAll(), GenericResponse.ResponseStatus.SUCCESS), HttpStatus.OK
+                new GenericResponse(rideRepository.findAll(), HttpStatus.OK), HttpStatus.OK
         );
     }
 
@@ -99,18 +95,18 @@ public class RideController {
             ObjectId id
     ) {
 
-        GenericResponse userResponse = auth.getUser(principal);
-        if (userResponse.status == GenericResponse.ResponseStatus.ERROR) {
-            return new ResponseEntity<GenericResponse>(userResponse, HttpStatus.UNAUTHORIZED);
+        GenericResponse userResponse = userService.getUser(principal);
+        if (userResponse.httpStatus != HttpStatus.OK) {
+            return new ResponseEntity<GenericResponse>(userResponse, userResponse.httpStatus);
         }
 
         final User currentUser = (User)userResponse.data;
 
         final Optional<Ride> currentRideOptional = rideRepository.findById(id).blockOptional();
         return currentRideOptional.map(ride -> new ResponseEntity<GenericResponse>(
-                new GenericResponse(ride, GenericResponse.ResponseStatus.SUCCESS), HttpStatus.OK
+                new GenericResponse(ride, HttpStatus.OK), HttpStatus.OK
         )).orElseGet(() -> new ResponseEntity<GenericResponse>(
-                new GenericResponse("No Ride with this ID", GenericResponse.ResponseStatus.ERROR), HttpStatus.UNAUTHORIZED)
+                new GenericResponse("No Ride with this ID", HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND)
         );
     }
 
@@ -123,9 +119,9 @@ public class RideController {
             ObjectId id
     ) {
 
-        GenericResponse userResponse = auth.getUser(principal);
-        if (userResponse.status == GenericResponse.ResponseStatus.ERROR) {
-            return new ResponseEntity<GenericResponse>(userResponse, HttpStatus.UNAUTHORIZED);
+        GenericResponse userResponse = userService.getUser(principal);
+        if (userResponse.httpStatus != HttpStatus.OK) {
+            return new ResponseEntity<GenericResponse>(userResponse, userResponse.httpStatus);
         }
 
         final User currentUser = (User)userResponse.data;
@@ -133,7 +129,7 @@ public class RideController {
         final Optional<Ride> currentRideOptional = rideRepository.findById(id).blockOptional();
         if (currentRideOptional.isEmpty()) {
             return new ResponseEntity<GenericResponse>(
-                    new GenericResponse("No Ride with this ID", GenericResponse.ResponseStatus.ERROR), HttpStatus.UNAUTHORIZED
+                    new GenericResponse("No Ride with this ID", HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND
             );
         }
         Ride currentRide = currentRideOptional.get();
@@ -142,13 +138,13 @@ public class RideController {
 
         if (currentUser.hashCode() == currentRide.getHost().hashCode()) {
             return new ResponseEntity<GenericResponse>(
-                    new GenericResponse("Host and Rider cannot be same", GenericResponse.ResponseStatus.ERROR), HttpStatus.UNAUTHORIZED
+                    new GenericResponse("Host and Rider cannot be same", HttpStatus.FORBIDDEN), HttpStatus.FORBIDDEN
             );
         }
 
 
         return new ResponseEntity<GenericResponse>(
-                new GenericResponse(rideRepository.save(currentRide), GenericResponse.ResponseStatus.SUCCESS), HttpStatus.OK
+                new GenericResponse(rideRepository.save(currentRide), HttpStatus.OK), HttpStatus.OK
         );
     }
 
@@ -162,9 +158,9 @@ public class RideController {
             ObjectId id
     ) {
 
-        GenericResponse userResponse = auth.getUser(principal);
-        if (userResponse.status == GenericResponse.ResponseStatus.ERROR) {
-            return new ResponseEntity<GenericResponse>(userResponse, HttpStatus.UNAUTHORIZED);
+        GenericResponse userResponse = userService.getUser(principal);
+        if (userResponse.httpStatus != HttpStatus.OK) {
+            return new ResponseEntity<GenericResponse>(userResponse, userResponse.httpStatus);
         }
 
         final User currentUser = (User)userResponse.data;
@@ -173,20 +169,20 @@ public class RideController {
         final Optional<Ride> currentRideOptional = rideRepository.findById(id).blockOptional();
         if (currentRideOptional.isEmpty()) {
             return new ResponseEntity<GenericResponse>(
-                    new GenericResponse("No Ride with this ID", GenericResponse.ResponseStatus.ERROR), HttpStatus.UNAUTHORIZED
+                    new GenericResponse("No Ride with this ID", HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND
             );
         }
         else {
             Ride currentRide = currentRideOptional.get();
             if (currentUser.hashCode() != currentRide.getHost().hashCode()) {
                 return new ResponseEntity<GenericResponse>(
-                        new GenericResponse("Not Authorized to delete", GenericResponse.ResponseStatus.ERROR), HttpStatus.UNAUTHORIZED
+                        new GenericResponse("Not Authorized to delete", HttpStatus.FORBIDDEN), HttpStatus.FORBIDDEN
                 );
             }
 
             rideRepository.deleteById(id);
             return new ResponseEntity<GenericResponse>(
-                    new GenericResponse(currentRide, GenericResponse.ResponseStatus.SUCCESS), HttpStatus.OK
+                    new GenericResponse(currentRide, HttpStatus.OK), HttpStatus.OK
             );
         }
     }

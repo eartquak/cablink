@@ -1,15 +1,12 @@
 package com.oops.cablink.response;
 
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 
 @AllArgsConstructor
 public class GenericResponse {
 
     public Object data;
-    public ResponseStatus status;
+    public HttpStatus httpStatus;
 
-    public enum ResponseStatus {
-        SUCCESS,
-        ERROR,
-    }
 }
