@@ -1,4 +1,4 @@
-package com.oops.cablink.request;
+package com.oops.cablink.dtos;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
@@ -8,7 +8,7 @@ import org.geojson.GeoJsonObject;
 import java.time.LocalDateTime;
 
 @Data
-public class RideCreate {
+public class RideCreateDTO {
         @Valid
 
         @NotEmpty

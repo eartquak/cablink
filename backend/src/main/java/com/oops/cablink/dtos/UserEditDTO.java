@@ -1,4 +1,4 @@
-package com.oops.cablink.request;
+package com.oops.cablink.dtos;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
@@ -7,7 +7,7 @@ import lombok.Data;
 import java.math.BigInteger;
 
 @Data
-public class UserEdit {
+public class UserEditDTO {
         @Valid
 
         @NotBlank

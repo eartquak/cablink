@@ -1,19 +1,16 @@
-package com.oops.cablink.request;
+package com.oops.cablink.dtos;
 
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
 
 import java.math.BigInteger;
 
 @Data
-public class UserCreate {
+public class UserCreateDTO {
         @Valid
 
         @NotNull(message = "cannot be null")
