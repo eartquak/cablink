@@ -4,9 +4,8 @@ import com.oops.cablink.services.UserService;
 import com.oops.cablink.models.Ride;
 import com.oops.cablink.models.User;
 import com.oops.cablink.repositories.RideRepository;
-import com.oops.cablink.repositories.UserRepository;
 import com.oops.cablink.response.GenericResponse;
-import com.oops.cablink.request.RideCreate;
+import com.oops.cablink.dtos.RideCreateDTO;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,9 +31,9 @@ public class RideController {
     public ResponseEntity<GenericResponse> create (
             @AuthenticationPrincipal
             OAuth2User principal,
-            
+
             @RequestBody
-            RideCreate rideCreate
+            RideCreateDTO rideCreateDTO
     ) {
         GenericResponse userResponse = userService.getUser(principal);
         if (userResponse.httpStatus != HttpStatus.OK) {
@@ -45,15 +44,15 @@ public class RideController {
 
         Ride ride = new Ride(
                 new ObjectId(),
-                rideCreate.getName(),
+                rideCreateDTO.getName(),
                 currentUser,
                 new ArrayList<User>(),
-                rideCreate.getPrice(),
-                rideCreate.getSeats(),
+                rideCreateDTO.getPrice(),
+                rideCreateDTO.getSeats(),
                 1,
-                rideCreate.getLocationStart(),
-                rideCreate.getLocationEnd(),
-                rideCreate.getDateTime(),
+                rideCreateDTO.getLocationStart(),
+                rideCreateDTO.getLocationEnd(),
+                rideCreateDTO.getDateTime(),
                 true
         );
 

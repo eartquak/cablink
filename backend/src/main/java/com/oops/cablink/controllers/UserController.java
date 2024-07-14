@@ -4,8 +4,8 @@ import com.oops.cablink.services.UserService;
 import com.oops.cablink.repositories.UserRepository;
 import com.oops.cablink.models.User;
 import com.oops.cablink.repositories.RideRepository;
-import com.oops.cablink.request.UserCreate;
-import com.oops.cablink.request.UserEdit;
+import com.oops.cablink.dtos.UserCreateDTO;
+import com.oops.cablink.dtos.UserEditDTO;
 import com.oops.cablink.response.GenericResponse;
 
 import jakarta.validation.Valid;
@@ -15,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -45,7 +44,7 @@ public class UserController {
 
             @Valid
             @RequestBody
-            UserCreate userCreate
+            UserCreateDTO userCreateDTO
             ) {
         GenericResponse userResponse = userService.getUser(principal);
         if (userResponse.httpStatus == HttpStatus.OK) {
@@ -56,7 +55,7 @@ public class UserController {
                 new ObjectId(),
                 Objects.requireNonNull(principal.getAttribute("name")).toString(),
                 Objects.requireNonNull(principal.getAttribute("email")).toString(),
-                userCreate.getPhNo()
+                userCreateDTO.getPhNo()
         );
 
         return new ResponseEntity<GenericResponse>(
@@ -90,7 +89,7 @@ public class UserController {
 
             @RequestBody
             @Valid
-            UserEdit userEdit) {
+            UserEditDTO userEditDTO) {
 
         GenericResponse userResponse = userService.getUser(principal);
         if (userResponse.httpStatus != HttpStatus.OK) {
@@ -99,7 +98,7 @@ public class UserController {
 
         final User currentUser = (User)userResponse.data;
 
-        if (userEdit == null) {
+        if (userEditDTO == null) {
             return new ResponseEntity<GenericResponse>(
                     new GenericResponse(
                             "Error",
@@ -112,11 +111,11 @@ public class UserController {
         String newName = currentUser.getName();
         BigInteger newPhNo = currentUser.getPhNo();
 
-        if (userEdit.getName() != null) {
-            newName = userEdit.getName();
+        if (userEditDTO.getName() != null) {
+            newName = userEditDTO.getName();
         }
-        if (userEdit.getPhNo() != null) {
-            newPhNo = userEdit.getPhNo();
+        if (userEditDTO.getPhNo() != null) {
+            newPhNo = userEditDTO.getPhNo();
         }
 
         User user = new User(
