@@ -4,23 +4,25 @@ import com.oops.cablink.services.UserService;
 import com.oops.cablink.repositories.UserRepository;
 import com.oops.cablink.models.User;
 import com.oops.cablink.repositories.RideRepository;
-
 import com.oops.cablink.request.UserCreate;
 import com.oops.cablink.request.UserEdit;
 import com.oops.cablink.response.GenericResponse;
+
+import jakarta.validation.Valid;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 @RestController
@@ -40,43 +42,26 @@ public class UserController {
     public ResponseEntity<GenericResponse> create(
             @AuthenticationPrincipal
             OAuth2User principal,
+
+            @Valid
             @RequestBody
-            @Validated
-            UserCreate userCreate) {
-        if (userCreate == null) {
-            return new ResponseEntity<GenericResponse>(
-                    new GenericResponse( "", HttpStatus.UNAUTHORIZED), HttpStatus.UNAUTHORIZED
-            );
-        }
-        if (principal.getAttribute("email") == null || Objects.requireNonNull(principal.getAttribute("email")).toString().isEmpty() || Objects.requireNonNull(
-                principal.getAttribute("email")).toString().isBlank()) {
-            return new ResponseEntity<GenericResponse>(
-                    new GenericResponse("Error", HttpStatus.UNAUTHORIZED),HttpStatus.UNAUTHORIZED
-            );
+            UserCreate userCreate
+            ) {
+        GenericResponse userResponse = userService.getUser(principal);
+        if (userResponse.httpStatus == HttpStatus.OK) {
+            return new ResponseEntity<GenericResponse>(userResponse, HttpStatus.CONFLICT);
         }
 
-        if (principal.getAttribute("name") == null || Objects.requireNonNull(principal.getAttribute("name")).toString().isEmpty() || Objects.requireNonNull(
-                principal.getAttribute("name")).toString().isBlank()) {
-            return new ResponseEntity<GenericResponse>(
-                    new GenericResponse("Error", HttpStatus.UNAUTHORIZED),HttpStatus.UNAUTHORIZED
-            );
-        }
-
-        if (userRepository.findByEmail(Objects.requireNonNull(principal.getAttribute("email")).toString()).blockFirst() != null) {
-            return new ResponseEntity<GenericResponse>(
-                    new GenericResponse( "Error", HttpStatus.UNAUTHORIZED),HttpStatus.BAD_REQUEST
-            );
-        }
-
-        User user = new User(
+        User newUser = new User(
                 new ObjectId(),
                 Objects.requireNonNull(principal.getAttribute("name")).toString(),
                 Objects.requireNonNull(principal.getAttribute("email")).toString(),
-                userCreate.phNo()
+                userCreate.getPhNo()
         );
 
         return new ResponseEntity<GenericResponse>(
-                new GenericResponse( userRepository.save(user).block(),  HttpStatus.CREATED), HttpStatus.CREATED
+                new GenericResponse( userRepository.save(newUser).block(),  HttpStatus.CREATED),
+                HttpStatus.CREATED
         );
     }
 
@@ -93,7 +78,8 @@ public class UserController {
         final User currentUser = (User)userResponse.data;
 
         return new ResponseEntity<GenericResponse>(
-                new GenericResponse( currentUser, HttpStatus.OK), HttpStatus.OK
+                new GenericResponse( currentUser, HttpStatus.OK),
+                HttpStatus.OK
         );
     }
 
@@ -101,8 +87,9 @@ public class UserController {
     public ResponseEntity<GenericResponse> edit(
             @AuthenticationPrincipal
             OAuth2User principal,
+
             @RequestBody
-            @Validated
+            @Valid
             UserEdit userEdit) {
 
         GenericResponse userResponse = userService.getUser(principal);
@@ -125,11 +112,11 @@ public class UserController {
         String newName = currentUser.getName();
         BigInteger newPhNo = currentUser.getPhNo();
 
-        if (userEdit.name() != null) {
-            newName = userEdit.name();
+        if (userEdit.getName() != null) {
+            newName = userEdit.getName();
         }
-        if (userEdit.phNo() != null) {
-            newPhNo = userEdit.phNo();
+        if (userEdit.getPhNo() != null) {
+            newPhNo = userEdit.getPhNo();
         }
 
         User user = new User(
@@ -139,10 +126,10 @@ public class UserController {
                 newPhNo
         );
 
-        return new ResponseEntity<GenericResponse>(new GenericResponse(
-                userRepository.save(user),
+        return new ResponseEntity<GenericResponse>(
+                new GenericResponse(userRepository.save(user), HttpStatus.OK),
                 HttpStatus.OK
-        ), HttpStatus.OK);
+        );
     }
 
     @GetMapping("/user/rides")
@@ -158,19 +145,13 @@ public class UserController {
 
         final User currentUser = (User)userResponse.data;
 
-        if (currentUser == null) {
-            return new ResponseEntity<GenericResponse>(new GenericResponse(
-                    "Error",
-                    HttpStatus.UNAUTHORIZED
-            ), HttpStatus.UNAUTHORIZED);
-        }
 
         ObjectId id = currentUser.getId();
-        System.out.println(id);
 
         //TODO: Implement This
         return new ResponseEntity<GenericResponse>(new GenericResponse(
-                rideRepository.findRidesByHost(id), HttpStatus.OK), HttpStatus.OK
+                rideRepository.findRidesByHost(id), HttpStatus.OK),
+                HttpStatus.OK
         );
     }
 
@@ -188,18 +169,27 @@ public class UserController {
 
         final User currentUser = (User)userResponse.data;
 
-        if (currentUser == null) {
-            return new ResponseEntity<GenericResponse>(
-                    new GenericResponse("Could not find user", HttpStatus.UNAUTHORIZED), HttpStatus.NOT_FOUND
-            );
-        }
-
-
         ObjectId id = currentUser.getId();
         userRepository.deleteById(id);
 
         return new ResponseEntity<GenericResponse>(
-                new GenericResponse( currentUser, HttpStatus.OK), HttpStatus.OK
+                new GenericResponse( currentUser, HttpStatus.OK),
+                HttpStatus.OK
         );
     }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Map<String, String> handleValidationExceptions(
+            MethodArgumentNotValidException ex
+    ) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return errors;
+    }
+
 }

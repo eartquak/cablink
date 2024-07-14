@@ -11,6 +11,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.ReactiveMongoDatabaseFactory;
 import org.springframework.data.mongodb.ReactiveMongoTransactionManager;
 import org.springframework.data.mongodb.config.AbstractReactiveMongoConfiguration;
+import org.springframework.data.mongodb.core.mapping.event.ValidatingMongoEventListener;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 @Configuration
 public class ReactiveMongoConfig extends AbstractReactiveMongoConfiguration {
@@ -37,6 +39,12 @@ public class ReactiveMongoConfig extends AbstractReactiveMongoConfiguration {
     @Bean
     ReactiveMongoTransactionManager transactionManager(ReactiveMongoDatabaseFactory dbFactory) {
         return new ReactiveMongoTransactionManager(dbFactory);
+    }
+
+    @Bean
+    public ValidatingMongoEventListener validatingMongoEventListener(
+            final LocalValidatorFactoryBean factory) {
+        return new ValidatingMongoEventListener(factory);
     }
 
 }

@@ -1,16 +1,22 @@
 package com.oops.cablink.request;
 
-import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
+import lombok.Data;
 
 import java.math.BigInteger;
 
-public record UserEdit (
+@Data
+public class UserEdit {
+        @Valid
+
         @NotBlank
-        String name,
+        @NotEmpty
+        @NotNull
+        private String name;
 
         @Digits(integer = 10, fraction = 0)
-        BigInteger phNo
-) {
-
+        @Min(value = 999999999)
+        @NotNull
+        private BigInteger phNo;
 }

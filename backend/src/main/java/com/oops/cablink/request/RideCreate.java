@@ -1,30 +1,36 @@
 package com.oops.cablink.request;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
+import lombok.Data;
 import org.geojson.GeoJsonObject;
 
 import java.time.LocalDateTime;
 
-public record RideCreate (
+@Data
+public class RideCreate {
+        @Valid
 
         @NotEmpty
         @NotBlank
-        String name,
+        @NotNull
+        String name;
 
         @Min(value = 2)
-        int seats,
+        @NotNull
+        int seats;
 
         @Positive
-        double price,
+        @NotNull
+        double price;
 
         @NotNull
-        GeoJsonObject locationStart,
+        GeoJsonObject locationStart;
 
         @NotNull
-        GeoJsonObject locationEnd,
+        GeoJsonObject locationEnd;
 
         @NotNull
-        LocalDateTime dateTime
-) {
-
+        @Future
+        LocalDateTime dateTime;
 }

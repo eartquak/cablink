@@ -29,19 +29,13 @@ public class RideController {
 
 
     @PostMapping("/ride/create")
-    public ResponseEntity<GenericResponse> create(
+    public ResponseEntity<GenericResponse> create (
             @AuthenticationPrincipal
             OAuth2User principal,
+            
             @RequestBody
             RideCreate rideCreate
     ) {
-        if (rideCreate == null) {
-            return new ResponseEntity<GenericResponse>(
-                    new GenericResponse( "Error", HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST
-            );
-        }
-
-
         GenericResponse userResponse = userService.getUser(principal);
         if (userResponse.httpStatus != HttpStatus.OK) {
             return new ResponseEntity<GenericResponse>(userResponse, userResponse.httpStatus);
@@ -51,17 +45,19 @@ public class RideController {
 
         Ride ride = new Ride(
                 new ObjectId(),
-                rideCreate.name(),
+                rideCreate.getName(),
                 currentUser,
                 new ArrayList<User>(),
-                rideCreate.price(),
-                rideCreate.seats(),
-                0,
-                rideCreate.locationStart(),
-                rideCreate.locationEnd(),
-                rideCreate.dateTime()
+                rideCreate.getPrice(),
+                rideCreate.getSeats(),
+                1,
+                rideCreate.getLocationStart(),
+                rideCreate.getLocationEnd(),
+                rideCreate.getDateTime(),
+                true
         );
 
+        ride.getRiders().add(currentUser);
         ride = rideRepository.save(ride).block();
         return new ResponseEntity<GenericResponse>(
                 new GenericResponse(ride,  HttpStatus.CREATED), HttpStatus.CREATED
