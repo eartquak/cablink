@@ -1,14 +1,17 @@
-<!-- src/App.svelte -->
+<!-- App.svelte -->
 <script>
-    import Registration from './Registration.svelte'; // Import your Registration component
+    import { Router, Route } from 'svelte-routing';
+    import EntryPage from './EntryPage.svelte';
+    import EditProfile from './EditProfile.svelte';
 
-    // Any additional logic or state management can be defined here
+    // Define routes
+    const routes = {
+        '/': EntryPage,
+        '/editprofile': EditProfile // Ensure the path matches the import and route
+    };
 </script>
 
-<style>
-    /* Global styles can be defined here if needed */
-</style>
-
-<div>
-    <Registration /> <!-- Render your Registration component here -->
-</div>
+<Router {routes}>
+    <Route path="/" component={EntryPage} />
+    <Route path="/editprofile" component={EditProfile} />
+</Router>

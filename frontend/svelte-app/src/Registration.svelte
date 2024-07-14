@@ -23,7 +23,13 @@
             if (response.ok) {
                 const data = await response.json();
                 console.log('Registration response:', data);
-                // Handle success (redirect, show message, etc.)
+                // Redirect to EntryPage
+                window.location = '/entry'; // Replace with your actual route
+
+                // Alternatively, if using a router like svelte-routing:
+                // import { goto } from '$app/navigation';
+                // goto('/entry');
+
             } else {
                 const errorData = await response.json();
                 errorMessage = errorData.message;
