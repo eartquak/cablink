@@ -1,13 +1,15 @@
 <!-- src/Profile.svelte -->
 <script>
+    import { navigate } from 'svelte-routing';
+
     let user = {
         name: 'John Does',
         phoneNumber: '1234567890', // Example phone number
     };
 
     function handleEdit() {
-        // Handle edit functionality
-        console.log('Edit button clicked');
+        // Navigate to edit profile page
+        navigate('/editprofile');
     }
 
     function handleDelete() {
