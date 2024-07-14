@@ -1,14 +1,17 @@
 package com.oops.cablink.config;
 
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -17,25 +20,30 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> {
+                    auth.requestMatchers("/test").permitAll();
                     auth.anyRequest().authenticated();
                 })
                 .oauth2Login(login -> login.successHandler(
                 (request, response, authentication) -> {
                     response.sendRedirect("/details");
-                })).oauth2Client(Customizer.withDefaults()).logout(logout -> logout.logoutSuccessUrl("/").permitAll()).csrf(
-                        AbstractHttpConfigurer::disable)
-//                .logout(logout -> logout.logoutSuccessUrl("/").permitAll()).csrf(
-//                        AbstractHttpConfigurer::disable) // TODO: Remove this line in production
-//                .exceptionHandling(exceptionHandling -> exceptionHandling.defaultAuthenticationEntryPointFor(
-//                        (request, response, accessDeniedException) -> {
-//                            response.setStatus(401);
-//                        },
-//                        new RequestHeaderRequestMatcher("X-Requested-With", "BITSBids-Frontend")
-//                ))
-//                .oauth2Login(Customizer.withDefaults())
-//                .formLogin(Customizer.withDefaults())
+                }))
+                .oauth2Client(Customizer.withDefaults())
+                .logout(logout -> logout.logoutSuccessUrl("/").permitAll())
                 .build();
 
+    }
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("*"));
+        configuration.setAllowedMethods(Arrays.asList("*"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
