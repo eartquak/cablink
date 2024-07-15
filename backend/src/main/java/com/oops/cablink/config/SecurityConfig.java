@@ -21,29 +21,17 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/test").permitAll();
                     auth.anyRequest().authenticated();
                 })
                 .oauth2Login(login -> login.successHandler(
                 (request, response, authentication) -> {
-                    response.sendRedirect("/details");
+                    response.sendRedirect("/api/details");
                 }))
                 .oauth2Client(Customizer.withDefaults())
                 .logout(logout -> logout.logoutSuccessUrl("/").permitAll())
                 .build();
 
-    }
-
-    @Bean
-    CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("*"));
-        configuration.setAllowedMethods(Arrays.asList("*"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
     }
 }
