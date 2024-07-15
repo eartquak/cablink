@@ -8,7 +8,7 @@
         var redirectUrl = 'http://' + ipAddress + ':8080'+'/api';
         
         // Redirect to the constructed URL
-        window.location.href = 'http://localhost:8000/api/';
+        window.location = '/api';
     }
 </script>
 

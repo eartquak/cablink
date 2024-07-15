@@ -6,6 +6,7 @@
     let user = writable({
         name: 'John Doe',
         phNo: '', // Initial empty phone number
+        dpURL: ''  // Optional: if you have a dpURL field
     });
 
     async function saveChanges(event) {
@@ -19,7 +20,8 @@
                 },
                 body: JSON.stringify({
                     name: $user.name,
-                    phNo: $user.phNo
+                    phNo: parseInt($user.phNo), // Ensure phNo is sent as a number
+                    dpURL: $user.dpURL
                 })
             });
 
@@ -28,25 +30,16 @@
             }
 
             console.log('Profile updated successfully.');
-            navigate('/entrypage'); // Redirect to entry page or another appropriate route
+            navigate('/registration'); // Redirect to entry page or another appropriate route
         } catch (error) {
             console.error('Error updating profile:', error);
             // Handle network errors or specific error responses
+            // Optionally, display an error message to the user
         }
-    }
-
-    function isValidPhoneNumber(number) {
-        const cleaned = number.replace(/\D/g, ''); // Remove non-digit characters
-        return cleaned.length === 10; // Ensure exactly 10 digits
     }
 
     function resetError() {
-        const errorElement = document.querySelector('.error-message');
-        if (!isValidPhoneNumber($user.phNo)) {
-            errorElement.style.opacity = '1';
-        } else {
-            errorElement.style.opacity = '0';
-        }
+        // Optional: add validation logic if needed
     }
 </script>
 
@@ -130,7 +123,11 @@
         <label for="phNo">Phone Number:</label>
         <input type="tel" id="phNo" name="phNo" bind:value={$user.phNo} required minlength="10" maxlength="10" on:input={resetError}>
         <small>Enter a 10-digit phone number.</small>
-        <p class="error-message" style="{isValidPhoneNumber($user.phNo) ? 'opacity: 0;' : 'opacity: 1;'}">Please enter a valid 10-digit phone number.</p>
+        <!-- Optionally, add validation message based on backend DTO constraints -->
+
+        <label for="dpURL">Profile Picture URL:</label>
+        <input type="url" id="dpURL" name="dpURL" bind:value={$user.dpURL}>
+        <small>Optional: Enter a valid URL for profile picture.</small>
 
         <button type="submit">Save Changes</button>
     </form>
