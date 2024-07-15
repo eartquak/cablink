@@ -5,7 +5,7 @@
 
     const ride = writable({
         name: '',
-        seats: 1,
+        seats: 2,
         price: 0,
         startingPoint: '',
         destinationPoint: '',
@@ -27,7 +27,20 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify($ride)
+                body: JSON.stringify({
+                    name: $ride.name,
+                    seats: $ride.seats,
+                    price: $ride.price,
+                    locationStart: {
+                        type: 'Point',
+                        coordinates: getCoordinates($ride.startingPoint)
+                    },
+                    locationEnd: {
+                        type: 'Point',
+                        coordinates: getCoordinates($ride.destinationPoint)
+                    },
+                    dateTime: $ride.dateTime
+                })
             });
 
             if (!response.ok) {
@@ -39,6 +52,20 @@
         } catch (error) {
             console.error('Error creating ride:', error);
             // Handle error
+        }
+    }
+
+    // Helper function to get coordinates based on selected location
+    function getCoordinates(location) {
+        switch (location) {
+            case 'Campus':
+                return [1.0, 1.0]; // Replace with actual coordinates
+            case 'Airport':
+                return [2.0, 2.0]; // Replace with actual coordinates
+            case 'Railway Station':
+                return [3.0, 3.0]; // Replace with actual coordinates
+            default:
+                return [0, 0];
         }
     }
 </script>
@@ -57,7 +84,7 @@
         <input type="text" id="name" name="name" bind:value={$ride.name} required>
 
         <label for="seats">Seats:</label>
-        <input type="number" id="seats" name="seats" bind:value={$ride.seats} min="1" required>
+        <input type="number" id="seats" name="seats" bind:value={$ride.seats} min="2" required>
 
         <label for="price">Price:</label>
         <input type="number" id="price" name="price" bind:value={$ride.price} min="0" step="0.01" required>
