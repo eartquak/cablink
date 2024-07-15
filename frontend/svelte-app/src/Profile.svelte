@@ -3,7 +3,12 @@
     import { onMount } from 'svelte';
     import { navigate } from 'svelte-routing';
 
-    let user = {};
+    let user = {
+        name: '',
+        email: '',
+        phNo: '',
+        dpURL: ''
+    };
 
     async function fetchUserProfile() {
         try {
@@ -44,7 +49,7 @@
 </script>
 
 <style>
-    /* Your CSS styles for profile page */
+    /* Your existing CSS styles for profile page */
     .profile-container {
         max-width: 600px;
         margin: 0 auto;
@@ -69,6 +74,16 @@
         margin-bottom: 10px;
         font-size: 1.2rem;
         color: #495057; /* Darker text color */
+    }
+
+    .profile-picture {
+        width: 150px; /* Adjust size as needed */
+        height: 150px; /* Adjust size as needed */
+        border-radius: 50%; /* Round the image */
+        object-fit: cover; /* Maintain aspect ratio */
+        margin: 0 auto 20px; /* Center the image and add bottom margin */
+        display: block; /* Ensure the image is displayed as a block element */
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Soft shadow */
     }
 
     .edit-btn {
@@ -105,6 +120,17 @@
 
 <div class="profile-container">
     <h2>Profile Details</h2>
+
+    <!-- Display profile picture if dpURL exists -->
+    {#if user.dpURL}
+        <img class="profile-picture" src={user.dpURL} alt="Profile Picture">
+    {:else}
+        <!-- Display default profile picture or placeholder if dpURL is not available -->
+        <div class="profile-picture" style="background-color: #ccc; text-align: center; line-height: 150px;">
+            No Profile Picture
+        </div>
+    {/if}
+
     <div class="details">
         <p><strong>Name:</strong> {user.name}</p>
         <p><strong>Email:</strong> {user.email}</p>
