@@ -33,7 +33,10 @@ public class User {
     private String email;
 
     @Digits(integer = 10, fraction = 0)
+    @NotNull
     private BigInteger phNo;
 
+
+    private String dpURL;
 }
 

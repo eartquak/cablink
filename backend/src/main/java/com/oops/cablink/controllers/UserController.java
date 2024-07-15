@@ -55,7 +55,8 @@ public class UserController {
                 new ObjectId(),
                 Objects.requireNonNull(principal.getAttribute("name")).toString(),
                 Objects.requireNonNull(principal.getAttribute("email")).toString(),
-                userCreateDTO.getPhNo()
+                userCreateDTO.getPhNo(),
+                Objects.requireNonNull(principal.getAttribute("picture")).toString()
         );
 
         return new ResponseEntity<GenericResponse>(
@@ -80,6 +81,14 @@ public class UserController {
                 new GenericResponse( currentUser, HttpStatus.OK),
                 HttpStatus.OK
         );
+    }
+
+    @GetMapping("/user/test")
+    public String getTest (
+            @AuthenticationPrincipal
+            OAuth2User principal
+    ) {
+        return principal.getAttributes().toString();
     }
 
     @PostMapping("/user/edit")
@@ -110,6 +119,7 @@ public class UserController {
 
         String newName = currentUser.getName();
         BigInteger newPhNo = currentUser.getPhNo();
+        String newDpURL = currentUser.getDpURL();
 
         if (userEditDTO.getName() != null) {
             newName = userEditDTO.getName();
@@ -117,12 +127,16 @@ public class UserController {
         if (userEditDTO.getPhNo() != null) {
             newPhNo = userEditDTO.getPhNo();
         }
+        if (userEditDTO.getDpURL() != null) {
+            newDpURL = userEditDTO.getDpURL();
+        }
 
         User user = new User(
                 currentUser.getId(),
                 newName,
                 currentUser.getEmail(),
-                newPhNo
+                newPhNo,
+                newDpURL
         );
 
         return new ResponseEntity<GenericResponse>(

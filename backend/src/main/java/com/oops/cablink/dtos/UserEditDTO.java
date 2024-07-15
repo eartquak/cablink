@@ -3,6 +3,7 @@ package com.oops.cablink.dtos;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import org.hibernate.validator.constraints.URL;
 
 import java.math.BigInteger;
 
@@ -12,11 +13,12 @@ public class UserEditDTO {
 
         @NotBlank
         @NotEmpty
-        @NotNull
         private String name;
 
         @Digits(integer = 10, fraction = 0)
         @Min(value = 999999999)
-        @NotNull
         private BigInteger phNo;
+
+        @URL
+        private String dpURL;
 }
