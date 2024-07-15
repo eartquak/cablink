@@ -29,7 +29,7 @@ public class UserService {
             return new GenericResponse("Email not found", HttpStatus.BAD_REQUEST);
         }
 
-        if (principal.getAttribute("name") == null || Objects.requireNonNull(principal.getAttribute("name")).toString().isEmpty() || Objects.requireNonNull(
+        if (Objects.requireNonNull(principal.getAttribute("name")).toString().isEmpty() || Objects.requireNonNull(
                 principal.getAttribute("name")).toString().isBlank()) {
             return new GenericResponse("Name not found", HttpStatus.BAD_REQUEST);
         }

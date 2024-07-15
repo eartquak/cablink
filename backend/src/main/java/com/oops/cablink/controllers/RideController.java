@@ -73,13 +73,28 @@ public class RideController {
         if (userResponse.httpStatus != HttpStatus.OK) {
             return new ResponseEntity<GenericResponse>(userResponse, userResponse.httpStatus);
         }
-
         final User currentUser = (User)userResponse.data;
 
         return new ResponseEntity<GenericResponse>(
-                new GenericResponse(rideRepository.findAll(), HttpStatus.OK), HttpStatus.OK
+                new GenericResponse(rideRepository.findAll().collectList().block(), HttpStatus.OK), HttpStatus.OK
         );
     }
+
+    /*
+    @GetMapping("/ride/filtered")
+    public ResponseEntity<GenericResponse> getFilteredRides (
+            @AuthenticationPrincipal
+            OAuth2User principal
+    ) {
+        GenericResponse userResponse = userService.getUser(principal);
+        if (userResponse.httpStatus != HttpStatus.OK) {
+            return new ResponseEntity<GenericResponse>(userResponse, userResponse.httpStatus);
+        }
+        final User currentUser = (User)userResponse.data;
+
+
+    }
+     */
 
     @GetMapping("/ride/{id}")
     public ResponseEntity<GenericResponse> getRideDetails (
@@ -139,7 +154,7 @@ public class RideController {
 
 
         return new ResponseEntity<GenericResponse>(
-                new GenericResponse(rideRepository.save(currentRide), HttpStatus.OK), HttpStatus.OK
+                new GenericResponse(rideRepository.save(currentRide).block(), HttpStatus.OK), HttpStatus.OK
         );
     }
 
@@ -175,7 +190,7 @@ public class RideController {
                 );
             }
 
-            rideRepository.deleteById(id);
+            rideRepository.deleteById(id).block();
             return new ResponseEntity<GenericResponse>(
                     new GenericResponse(currentRide, HttpStatus.OK), HttpStatus.OK
             );
