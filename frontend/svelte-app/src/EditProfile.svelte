@@ -1,69 +1,48 @@
 <!-- EditProfile.svelte -->
 <script>
-    import { onMount } from 'svelte';
     import { writable } from 'svelte/store';
+    import { navigate } from 'svelte-routing';
 
     let user = writable({
         name: 'John Doe',
-        phoneNumber: '', // Initial empty phone number
+        phNo: '', // Initial empty phone number
     });
 
-    async function saveChanges() {
+    async function saveChanges(event) {
+        event.preventDefault(); // Prevent default form submission
+
         try {
-            // Assuming a backend endpoint to update the user profile
-            const response = await fetch('http://localhost:8080/user/profile', {
-                method: 'PUT',
+            const response = await fetch('/api/user/edit', {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify($user)
+                body: JSON.stringify({
+                    name: $user.name,
+                    phNo: $user.phNo
+                })
             });
 
-            if (response.ok) {
-                console.log('Profile updated successfully.');
-                // Optionally show a success message or redirect
-            } else {
-                const errorData = await response.json();
-                console.error('Failed to update profile:', errorData.message);
-                // Handle error (show error message to user)
+            if (!response.ok) {
+                throw new Error('Failed to update profile'); // Handle non-200 status
             }
+
+            console.log('Profile updated successfully.');
+            navigate('/entrypage'); // Redirect to entry page or another appropriate route
         } catch (error) {
             console.error('Error updating profile:', error);
-            // Handle network errors
+            // Handle network errors or specific error responses
         }
     }
-
-    function handleChange(event) {
-        const { name, value } = event.target;
-        user.update(u => ({ ...u, [name]: value }));
-    }
-
-    onMount(async () => {
-        try {
-            // Fetching initial user profile data
-            const response = await fetch('http://localhost:8080/user/profile');
-            if (response.ok) {
-                const userData = await response.json();
-                user.set(userData);
-            } else {
-                console.error('Failed to fetch user profile:', response.statusText);
-                // Handle error (show error message to user)
-            }
-        } catch (error) {
-            console.error('Error fetching user profile:', error);
-            // Handle network errors
-        }
-    });
 
     function isValidPhoneNumber(number) {
-        // Validate phone number to be exactly 10 digits
         const cleaned = number.replace(/\D/g, ''); // Remove non-digit characters
-        return cleaned.length === 10;
+        return cleaned.length === 10; // Ensure exactly 10 digits
     }
 
     function resetError() {
         const errorElement = document.querySelector('.error-message');
-        if (!isValidPhoneNumber($user.phoneNumber)) {
+        if (!isValidPhoneNumber($user.phNo)) {
             errorElement.style.opacity = '1';
         } else {
             errorElement.style.opacity = '0';
@@ -72,7 +51,7 @@
 </script>
 
 <style>
-    /* Your CSS styles for profile page */
+    /* Your CSS styles remain the same */
     .profile-container {
         max-width: 600px;
         margin: 0 auto;
@@ -144,14 +123,14 @@
 
 <div class="profile-container">
     <h2>Edit Profile</h2>
-    <form on:submit|preventDefault={saveChanges}>
+    <form on:submit={saveChanges}>
         <label for="name">Name:</label>
         <input type="text" id="name" name="name" bind:value={$user.name} required>
 
-        <label for="phoneNumber">Phone Number:</label>
-        <input type="tel" id="phoneNumber" name="phoneNumber" bind:value={$user.phoneNumber} required on:input={resetError}>
+        <label for="phNo">Phone Number:</label>
+        <input type="tel" id="phNo" name="phNo" bind:value={$user.phNo} required minlength="10" maxlength="10" on:input={resetError}>
         <small>Enter a 10-digit phone number.</small>
-        <p class="error-message" style="{!isValidPhoneNumber($user.phoneNumber) ? 'opacity: 0;' : 'opacity: 1;'}">Please enter a valid 10-digit phone number.</p>
+        <p class="error-message" style="{isValidPhoneNumber($user.phNo) ? 'opacity: 0;' : 'opacity: 1;'}">Please enter a valid 10-digit phone number.</p>
 
         <button type="submit">Save Changes</button>
     </form>

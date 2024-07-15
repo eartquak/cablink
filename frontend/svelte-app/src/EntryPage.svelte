@@ -2,9 +2,9 @@
 <script>
     import { onMount } from 'svelte';
     import { useLocation } from 'svelte-routing';
-    import Profile from './Profile.svelte'; // Import the Profile component
-    import ListRides from './ListRides.svelte'; // Import the ListRides component
-    import MakeRides from './MakeRides.svelte'; // Import the MakeRides component
+    import Profile from './Profile.svelte';
+    import ListRides from './ListRides.svelte';
+    import MakeRides from './MakeRides.svelte';
 
     let activeTab = 'profile'; // Initially active tab is 'profile'
 
@@ -84,10 +84,10 @@
     {/if}
 
     {#if activeTab === 'ListRides'}
-        <ListRides /> <!-- Assuming ListRides component exists -->
+        <ListRides />
     {/if}
 
     {#if activeTab === 'MakeRides'}
-        <MakeRides /> <!-- Assuming MakeRides component exists -->
+        <MakeRides />
     {/if}
 </div>
