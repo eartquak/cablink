@@ -124,7 +124,7 @@
             {#each rides as ride}
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <li class="ride-box" on:click={() => { navigateToRideDetails(ride.id);}}>
-                    <div class="ride-details">Name: <span>{ride.id}</span></div>
+                    <div class="ride-details">Name: <span>{ride.name}</span></div>
                     <div class="ride-details">Start Point: <span>{formatLocation(ride.locationStart)}</span></div>
                     <div class="ride-details">Destination: <span>{formatLocation(ride.locationEnd)}</span></div>
                     <div class="ride-details">Date & Time: <span>{new Date(ride.date).toLocaleString()}</span></div>
