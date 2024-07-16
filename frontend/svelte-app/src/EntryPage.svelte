@@ -1,10 +1,11 @@
-<!-- src/EntryPage.svelte -->
+<!-- EntryPage.svelte -->
 <script>
     import { onMount } from 'svelte';
     import { useLocation } from 'svelte-routing';
     import Profile from './Profile.svelte';
     import ListRides from './ListRides.svelte';
     import MakeRides from './MakeRides.svelte';
+    import Maps from './Maps.svelte'; // Import the Maps component
 
     let activeTab = 'profile'; // Initially active tab is 'profile'
 
@@ -20,7 +21,7 @@
     onMount(() => {
         const path = location.pathname;
         const tab = path.split('/').pop(); // Get last segment of path
-        if (['profile', 'ListRides', 'MakeRides'].includes(tab)) {
+        if (['profile', 'ListRides', 'MakeRides', 'Maps'].includes(tab)) {
             activeTab = tab;
         }
     });
@@ -77,6 +78,9 @@
         <div class="tab {activeTab === 'MakeRides' ? 'active' : ''}" on:click={() => changeTab('MakeRides')}>
             <span class="icon">➕</span>
         </div>
+        <div class="tab {activeTab === 'Maps' ? 'active' : ''}" on:click={() => changeTab('Maps')}>
+            <span class="icon">🗺️</span>
+        </div>
     </div>
 
     {#if activeTab === 'profile'}
@@ -89,5 +93,9 @@
 
     {#if activeTab === 'MakeRides'}
         <MakeRides />
+    {/if}
+
+    {#if activeTab === 'Maps'}
+        <Maps />
     {/if}
 </div>

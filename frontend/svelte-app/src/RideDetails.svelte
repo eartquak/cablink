@@ -85,6 +85,11 @@
                 return 'Unknown Location'; // Return default text for unknown location type
         }
     };
+
+    // Function to navigate back to the registration page
+    const navigateToRegistration = () => {
+        navigate('/registration');
+    };
 </script>
 
 <style>
@@ -124,6 +129,20 @@
 
     .action-button:hover {
         background-color: #0056b3;
+    }
+
+    .back-button {
+        margin-top: 20px;
+        padding: 8px 16px;
+        background-color: #6c757d;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .back-button:hover {
+        background-color: #495057;
     }
 </style>
 
@@ -174,4 +193,6 @@
     {:else}
         <p class="loading-text">Loading ride details...</p>
     {/if}
+
+    <button class="back-button" on:click={navigateToRegistration}>Back to Home Page</button>
 </div>
