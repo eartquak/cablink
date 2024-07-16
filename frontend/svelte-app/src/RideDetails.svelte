@@ -1,14 +1,16 @@
-<!-- RideDetails.svelte -->
 <script>
     import { onMount } from 'svelte';
-    import { derived } from 'svelte/store';
 
-    // Assuming selectedRideId is passed from ListRides.svelte
-    export let selectedRideId = '';
+    let selectedRideId = '';
 
     let rideDetails = null;
+    let currentPath = '';
 
     const fetchRideDetails = async () => {
+        currentPath = window.location.pathname;
+        console.log(currentPath)
+        const selectedRideId = currentPath.substring('/ridedetails/'.length);
+        console.log(selectedRideId)
         try {
             const response = await fetch(`/api/ride/${selectedRideId}`); // Fetch ride details from backend API
             if (response.ok) {
@@ -29,12 +31,13 @@
 
 {#if rideDetails}
     <div>
-        <p>Name: {rideDetails.name}</p>
-        <p>Start Point: {formatLocation(rideDetails.locationStart)}</p>
-        <p>Destination: {formatLocation(rideDetails.locationEnd)}</p>
-        <p>Date & Time: {new Date(rideDetails.date).toLocaleString()}</p>
-        <p>Host: {rideDetails.host ? rideDetails.host.name : 'Unknown Host'}</p>
-    </div>
+        <p>Ride Name: {rideDetails.data.ride.name}</p>
+        <p>Host's Name: {rideDetails.data.ride.host.name}</p>
+        <p>Host's Phone Number: {rideDetails.data.ride.host.phNo}</p>
+        <p>Start Point: {rideDetails.data.ride.locationStart}</p>
+        <p>Destination: {rideDetails.data.ride.locationEnd}</p>
+        <p>Date & Time: {new Date(rideDetails.data.ride.date).toLocaleString()}</p>
+        </div>
 {:else}
     <p>Loading ride details...</p>
 {/if}

@@ -13,5 +13,5 @@
     <Route path="/entrypage" component={EntryPage} />
     <Route path="/editprofile" component={EditProfile} />
     <Route path="/registration" component={Registration} />
-    <Route path="/ridedetails" component={RideDetails} />
+    <Route path="/ridedetails/:id" component={RideDetails} />
 </Router>
