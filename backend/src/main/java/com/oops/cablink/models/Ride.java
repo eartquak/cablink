@@ -15,6 +15,7 @@ import org.bson.types.ObjectId;
 import org.geojson.GeoJsonObject;
 import org.hibernate.validator.constraints.UniqueElements;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.data.mongodb.core.index.GeoSpatialIndexType;
 import org.springframework.data.mongodb.core.index.GeoSpatialIndexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
@@ -58,11 +59,11 @@ public class Ride {
 
     @NotNull
     @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
-    private GeoJsonObject locationStart;
+    private GeoJsonPoint locationStart;
 
     @NotNull
     @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
-    private GeoJsonObject locationEnd;
+    private GeoJsonPoint locationEnd;
 
     @NotNull
     private LocalDateTime dateTime;
