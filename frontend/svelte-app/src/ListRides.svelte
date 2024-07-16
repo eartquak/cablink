@@ -16,7 +16,7 @@
                 console.log('Fetched rides:', data); // Log fetched data for debugging
                 if (data && data.data) {
                     rides = data.data.map(ride => ({
-                        id: ride.id.timestamp, // Assuming ride.id is the timestamp-based identifier
+                        id: ride.id, // Assuming ride.id is the timestamp-based identifier
                         name: ride.name,
                         locationStart: ride.locationStart,
                         locationEnd: ride.locationEnd,
@@ -25,6 +25,7 @@
                         // Add more fields as needed
                     }));
                 }
+                console.log(rides);
             } else {
                 console.error('Failed to fetch rides:', response.statusText); // Log error if fetch fails
             }
@@ -50,6 +51,8 @@
             return null;
         }
     };
+
+    
 
     // Function to format location based on type (assuming location is in GeoJSON format)
     const formatLocation = (location) => {
@@ -132,10 +135,10 @@
         <ul>
             {#each rides as ride}
                 <li class="ride-box" on:click={() => navigateToRideDetails(ride.id)}>
-                    <div class="ride-details">Name: <span>{ride.name}</span></div>
+                    <div class="ride-details">Name: <span>{ride.id}</span></div>
                     <div class="ride-details">Start Point: <span>{formatLocation(ride.locationStart)}</span></div>
                     <div class="ride-details">Destination: <span>{formatLocation(ride.locationEnd)}</span></div>
-                    <div class="ride-details">Date & Time: <span>{new Date(ride.date).toLocaleString()}</span></div>
+                    <div class="ride-details">Date & Time: <span>{ride.date.toLocaleString()}</span></div>
                     <div class="ride-details">Host: <span>{ride.host ? ride.host.name : 'Unknown Host'}</span></div>
                 </li>
             {/each}
