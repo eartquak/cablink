@@ -13,6 +13,7 @@ import org.bson.types.ObjectId;
 import org.geojson.GeoJsonObject;
 import org.hibernate.validator.constraints.UniqueElements;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
@@ -34,11 +35,11 @@ public class Ride {
     private String name;
 
     @NotNull
-    @DocumentReference
+    @DBRef(db = "users")
     private User host;
 
-    @DocumentReference
     @UniqueElements
+    @DBRef(db = "users")
     private ArrayList<User> riders;
 
     @Positive

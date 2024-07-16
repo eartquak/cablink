@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
 
 @SpringBootApplication
-@EnableReactiveMongoRepositories
+@EnableMongoRepositories
 public class CablinkApplication {
 
 

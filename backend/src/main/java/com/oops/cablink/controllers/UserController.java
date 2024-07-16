@@ -61,7 +61,7 @@ public class UserController {
         );
 
         return new ResponseEntity<GenericResponse>(
-                new GenericResponse( userRepository.save(newUser).block(),  HttpStatus.CREATED),
+                new GenericResponse( userRepository.save(newUser),  HttpStatus.CREATED),
                 HttpStatus.CREATED
         );
     }
@@ -142,7 +142,7 @@ public class UserController {
         );
 
         return new ResponseEntity<GenericResponse>(
-                new GenericResponse(userRepository.save(user).block(), HttpStatus.OK),
+                new GenericResponse(userRepository.save(user), HttpStatus.OK),
                 HttpStatus.OK
         );
     }
@@ -165,7 +165,7 @@ public class UserController {
 
         //TODO: Implement This
         return new ResponseEntity<GenericResponse>(new GenericResponse(
-                rideRepository.findRidesByHost(id).collectList().block(), HttpStatus.OK),
+                rideRepository.findRidesByHost(id), HttpStatus.OK),
                 HttpStatus.OK
         );
     }
@@ -185,7 +185,7 @@ public class UserController {
         final User currentUser = (User)userResponse.data;
 
         ObjectId id = currentUser.getId();
-        userRepository.deleteById(id).block();
+        userRepository.deleteById(id);
 
         return new ResponseEntity<GenericResponse>(
                 new GenericResponse( currentUser, HttpStatus.OK),

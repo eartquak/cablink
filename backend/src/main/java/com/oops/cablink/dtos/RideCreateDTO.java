@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 
 @Data
 public class RideCreateDTO {
-        @Valid
 
         @NotEmpty
         @NotBlank

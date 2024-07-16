@@ -57,7 +57,7 @@ public class RideController {
         );
 
         ride.getRiders().add(currentUser);
-        ride = rideRepository.save(ride).block();
+        ride = rideRepository.save(ride);
         return new ResponseEntity<GenericResponse>(
                 new GenericResponse(ride,  HttpStatus.CREATED), HttpStatus.CREATED
         );
@@ -76,7 +76,7 @@ public class RideController {
         final User currentUser = (User)userResponse.data;
 
         return new ResponseEntity<GenericResponse>(
-                new GenericResponse(rideRepository.findAll().collectList().block(), HttpStatus.OK), HttpStatus.OK
+                new GenericResponse(rideRepository.findAll(), HttpStatus.OK), HttpStatus.OK
         );
     }
 
@@ -112,7 +112,7 @@ public class RideController {
 
         final User currentUser = (User)userResponse.data;
 
-        final Optional<Ride> currentRideOptional = rideRepository.findById(id).blockOptional();
+        final Optional<Ride> currentRideOptional = rideRepository.findById(id);
         return currentRideOptional.map(ride -> new ResponseEntity<GenericResponse>(
                 new GenericResponse(ride, HttpStatus.OK), HttpStatus.OK
         )).orElseGet(() -> new ResponseEntity<GenericResponse>(
@@ -136,7 +136,7 @@ public class RideController {
 
         final User currentUser = (User)userResponse.data;
 
-        final Optional<Ride> currentRideOptional = rideRepository.findById(id).blockOptional();
+        final Optional<Ride> currentRideOptional = rideRepository.findById(id);
         if (currentRideOptional.isEmpty()) {
             return new ResponseEntity<GenericResponse>(
                     new GenericResponse("No Ride with this ID", HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND
@@ -154,7 +154,7 @@ public class RideController {
 
 
         return new ResponseEntity<GenericResponse>(
-                new GenericResponse(rideRepository.save(currentRide).block(), HttpStatus.OK), HttpStatus.OK
+                new GenericResponse(rideRepository.save(currentRide), HttpStatus.OK), HttpStatus.OK
         );
     }
 
@@ -176,7 +176,7 @@ public class RideController {
         final User currentUser = (User)userResponse.data;
 
 
-        final Optional<Ride> currentRideOptional = rideRepository.findById(id).blockOptional();
+        final Optional<Ride> currentRideOptional = rideRepository.findById(id);
         if (currentRideOptional.isEmpty()) {
             return new ResponseEntity<GenericResponse>(
                     new GenericResponse("No Ride with this ID", HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND
@@ -190,7 +190,7 @@ public class RideController {
                 );
             }
 
-            rideRepository.deleteById(id).block();
+            rideRepository.deleteById(id);
             return new ResponseEntity<GenericResponse>(
                     new GenericResponse(currentRide, HttpStatus.OK), HttpStatus.OK
             );

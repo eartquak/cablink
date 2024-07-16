@@ -5,10 +5,8 @@ import com.oops.cablink.repositories.UserRepository;
 import com.oops.cablink.response.GenericResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -34,7 +32,7 @@ public class UserService {
             return new GenericResponse("Name not found", HttpStatus.BAD_REQUEST);
         }
 
-        final User currentUser = userRepository.findByEmail(Objects.requireNonNull(principal.getAttribute("email")).toString()).blockFirst();
+        final User currentUser = userRepository.findByEmail(Objects.requireNonNull(principal.getAttribute("email")).toString());
         if (currentUser == null) {
             return new GenericResponse("Could not find user", HttpStatus.NOT_FOUND);
         }
