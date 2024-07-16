@@ -1,5 +1,6 @@
 package com.oops.cablink.dtos.requests;
 
+import com.oops.cablink.models.User;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.Data;
@@ -21,4 +22,6 @@ public class UserEditRequestDTO {
 
         @URL
         private String dpURL;
+
+        private User.UserType userType;
 }

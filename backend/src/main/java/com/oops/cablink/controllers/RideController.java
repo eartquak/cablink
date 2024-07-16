@@ -1,5 +1,7 @@
 package com.oops.cablink.controllers;
 
+import com.oops.cablink.dtos.requests.RideEditRequestDTO;
+import com.oops.cablink.dtos.requests.UserEditRequestDTO;
 import com.oops.cablink.dtos.responses.RideDetailsResponseDTO;
 import com.oops.cablink.dtos.requests.RideQueryRequestDTO;
 import com.oops.cablink.services.UserService;
@@ -61,7 +63,8 @@ public class RideController {
                 rideCreateRequestDTO.getLocationStart(),
                 rideCreateRequestDTO.getLocationEnd(),
                 rideCreateRequestDTO.getDateTime(),
-                true
+                true,
+                (int) ((Math.random() * (9999 - 1000)) + 9999)
         );
 
         ride.getRiders().add(currentUser);
@@ -83,27 +86,10 @@ public class RideController {
         }
         final User currentUser = (User)userResponse.data;
 
-
         return new ResponseEntity<GenericResponse>(
-                new GenericResponse(rideRepository.findAll(), HttpStatus.OK), HttpStatus.OK
+                new GenericResponse(rideRepository.findAllRestricted(), HttpStatus.OK), HttpStatus.OK
         );
     }
-
-    /*
-    @GetMapping("/ride/filtered")
-    public ResponseEntity<GenericResponse> getFilteredRides (
-            @AuthenticationPrincipal
-            OAuth2User principal
-    ) {
-        GenericResponse userResponse = userService.getUser(principal);
-        if (userResponse.httpStatus != HttpStatus.OK) {
-            return new ResponseEntity<GenericResponse>(userResponse, userResponse.httpStatus);
-        }
-        final User currentUser = (User)userResponse.data;
-
-
-    }
-     */
 
     @GetMapping("/ride/{id}")
     public ResponseEntity<GenericResponse> getRideDetails (
@@ -176,6 +162,46 @@ public class RideController {
         return new ResponseEntity<GenericResponse>(
                 new GenericResponse(rideRepository.save(currentRide), HttpStatus.OK), HttpStatus.OK
         );
+    }
+
+    @PostMapping("/ride/edit/{id}")
+    public ResponseEntity<GenericResponse> editRide (
+            @AuthenticationPrincipal
+            OAuth2User principal,
+
+            @PathVariable
+            ObjectId id,
+
+            @RequestBody
+            RideEditRequestDTO rideEditRequestDTO
+    ) {
+        GenericResponse userResponse = userService.getUser(principal);
+        if (userResponse.httpStatus != HttpStatus.OK) {
+            return new ResponseEntity<GenericResponse>(userResponse, userResponse.httpStatus);
+        }
+
+        final User currentUser = (User)userResponse.data;
+
+
+        Optional<Ride> currentRideOptional = rideRepository.findById(id);
+        if (currentRideOptional.isEmpty()) {
+            return new ResponseEntity<GenericResponse>(
+                    new GenericResponse("No Ride with this ID", HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND
+            );
+        }
+
+        Ride currentRide = currentRideOptional.get();
+        if (!currentUser.getEmail().equals(currentRide.getHost().getEmail())) {
+            return new ResponseEntity<GenericResponse>(
+                    new GenericResponse("You cannot delete Ride", HttpStatus.UNAUTHORIZED), HttpStatus.UNAUTHORIZED
+            );
+        }
+        else {
+            return new ResponseEntity<GenericResponse>(
+                    new GenericResponse(currentRide, HttpStatus.OK), HttpStatus.OK
+            );
+        }
+
     }
 
     @GetMapping("/ride/delete/{id}")

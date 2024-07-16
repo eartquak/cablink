@@ -1,8 +1,11 @@
 package com.oops.cablink.dtos.requests;
 
+import com.oops.cablink.models.User;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 
 import java.time.LocalDateTime;
@@ -33,4 +36,5 @@ public class RideCreateRequestDTO {
         @NotNull
         @Future
         LocalDateTime dateTime;
+
 }

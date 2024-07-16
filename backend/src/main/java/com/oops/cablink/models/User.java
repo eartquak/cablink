@@ -22,6 +22,13 @@ import java.math.BigInteger;
 @ToString
 public class User {
 
+    public enum UserType {
+        DRIVER,
+        PROFESSOR,
+        STUDENT
+    }
+
+
     @Id
     @JsonSerialize(using = ToStringSerializer.class)
     private ObjectId id;
@@ -38,7 +45,8 @@ public class User {
     @NotNull
     private BigInteger phNo;
 
-
     private String dpURL;
+
+    private UserType userType;
 }
 

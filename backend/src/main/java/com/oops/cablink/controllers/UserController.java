@@ -57,7 +57,8 @@ public class UserController {
                 Objects.requireNonNull(principal.getAttribute("name")).toString(),
                 Objects.requireNonNull(principal.getAttribute("email")).toString(),
                 userCreateRequestDTO.getPhNo(),
-                principal.getAttribute("picture")
+                principal.getAttribute("picture"),
+                userCreateRequestDTO.getUserType()
         );
 
         return new ResponseEntity<GenericResponse>(
@@ -122,6 +123,7 @@ public class UserController {
         String newName = currentUser.getName();
         BigInteger newPhNo = currentUser.getPhNo();
         String newDpURL = currentUser.getDpURL();
+        User.UserType newUserType = currentUser.getUserType();
 
         if (userEditRequestDTO.getName() != null) {
             newName = userEditRequestDTO.getName();
@@ -132,13 +134,17 @@ public class UserController {
         if (userEditRequestDTO.getDpURL() != null) {
             newDpURL = userEditRequestDTO.getDpURL();
         }
+        if (userEditRequestDTO.getUserType() != null) {
+            newUserType = userEditRequestDTO.getUserType();
+        }
 
         User user = new User(
                 currentUser.getId(),
                 newName,
                 currentUser.getEmail(),
                 newPhNo,
-                newDpURL
+                newDpURL,
+                newUserType
         );
 
         return new ResponseEntity<GenericResponse>(

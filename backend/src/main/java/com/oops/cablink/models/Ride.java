@@ -69,4 +69,6 @@ public class Ride {
     @NotNull
     private Boolean active;
 
+    private int otp;
+
 }

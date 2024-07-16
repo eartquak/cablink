@@ -1,6 +1,7 @@
 package com.oops.cablink.dtos.requests;
 
 
+import com.oops.cablink.models.User;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Min;
@@ -17,4 +18,7 @@ public class UserCreateRequestDTO {
         @Digits(integer = 10, fraction = 0)
         @Min(value = 999999999)
         private BigInteger phNo;
+
+        @NotNull
+        User.UserType userType;
 }

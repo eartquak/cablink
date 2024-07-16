@@ -18,6 +18,9 @@ public interface RideRepository extends MongoRepository<Ride, ObjectId> {
     @Query("{ riders: ObjectId('?0')}")
     List<Ride> findRidesByHost(ObjectId id);
 
+    @Query(value = "{}", fields = "{ otp: 0, rider: 0 }")
+    List<Ride> findAllRestricted();
+
     @Query("{ _id: ObjectId('?0'), riders: ObjectId('?1') }")
     Optional<Ride> isUserInRide(ObjectId id, ObjectId riders);
 
