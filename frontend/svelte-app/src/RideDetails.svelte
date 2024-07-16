@@ -1,5 +1,6 @@
 <script>
     import { onMount } from 'svelte';
+    import { navigate } from 'svelte-routing';
 
     let rideDetails = null;
     let currentPath = '';
@@ -24,15 +25,16 @@
     const joinRide = async () => {
         try {
             const response = await fetch(`/api/ride/add/${selectedRideId}`, {
-                method: 'POST',
+                method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ userId: rideDetails.data.host.id }) // Adjust as per your API requirements
+                }
             });
             if (response.ok) {
                 // Optionally handle success, such as updating UI or fetching ride details again
                 await fetchRideDetails();
+                alert('Joined ride successfully!');
+                navigate('/registration');
             } else {
                 console.error('Failed to join ride:', response.statusText);
             }
@@ -47,12 +49,13 @@
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ userId: rideDetails.data.host.id }) // Adjust as per your API requirements
+                }
             });
             if (response.ok) {
                 // Optionally handle success, such as updating UI or fetching ride details again
                 await fetchRideDetails();
+                alert('Left ride successfully!');
+                navigate('/registration');
             } else {
                 console.error('Failed to leave ride:', response.statusText);
             }
@@ -63,6 +66,25 @@
 
     // Fetch ride details when component mounts
     onMount(fetchRideDetails);
+
+    // Function to format location based on type (assuming location is in GeoJSON format)
+    const formatLocation = (location) => {
+        switch (location.type) {
+            case 'Point':
+                // Check if coordinates match predefined values
+                if (location.coordinates[0] === 78.57416064972438 && location.coordinates[1] === 17.54501208500703) {
+                    return 'Campus';
+                } else if (location.coordinates[0] === 78.42932100501844 && location.coordinates[1] === 17.23691860120178) {
+                    return 'Airport';
+                } else if (location.coordinates[0] === 78.50200873815618 && location.coordinates[1] === 17.433382092720095) {
+                    return 'Railway Station';
+                } else {
+                    return `${location.coordinates[1]}, ${location.coordinates[0]}`; // Default: return coordinates
+                }
+            default:
+                return 'Unknown Location'; // Return default text for unknown location type
+        }
+    };
 </script>
 
 <style>
@@ -116,29 +138,38 @@
             <span class="ride-details-label">Host's Name:</span> {rideDetails.data.ride.host.name}
         </div>
         <div class="ride-details-item">
+            <span class="ride-details-label">Total Price:</span> {rideDetails.data.ride.price}
+        </div>
+        <div class="ride-details-item">
+            <span class="ride-details-label">Total Number of seats:</span> {rideDetails.data.ride.seats}
+        </div>
+        <div class="ride-details-item">
+            <span class="ride-details-label">Seats Filled:</span> {rideDetails.data.ride.seatsFilled}
+        </div>
+        <div class="ride-details-item">
+            <span class="ride-details-label">Current Price Per Person:</span> {rideDetails.data.ride.price / rideDetails.data.ride.seatsFilled}
+        </div>
+        <div class="ride-details-item">
             <span class="ride-details-label">Host's Phone Number:</span> {rideDetails.data.ride.host.phNo}
         </div>
         <div class="ride-details-item">
-            <span class="ride-details-label">Start Point:</span> {rideDetails.data.ride.locationStart.coordinates[1]}, {rideDetails.data.ride.locationStart.coordinates[0]}
+            <span class="ride-details-label">Start Point:</span> {formatLocation(rideDetails.data.ride.locationStart)}
         </div>
         <div class="ride-details-item">
-            <span class="ride-details-label">Destination:</span> {rideDetails.data.ride.locationEnd.coordinates[1]}, {rideDetails.data.ride.locationEnd.coordinates[0]}
+            <span class="ride-details-label">Destination:</span> {formatLocation(rideDetails.data.ride.locationEnd)}
         </div>
         <div class="ride-details-item">
             <span class="ride-details-label">Date & Time:</span> {new Date(rideDetails.data.ride.dateTime).toLocaleString()}
-        </div>
-        <div class="ride-details-item">
-            <span class="ride-details-label">Name of Riders:</span>
-            {#each rideDetails.data.ride.riders as rider, index}
-                {rider.name}
-                {#if index < rideDetails.data.ride.riders.length - 1}, {/if}
-            {/each}
         </div>
         
         {#if !rideDetails.data.userInRide}
             <button class="action-button" on:click={joinRide}>Join Ride</button>
         {:else}
-            <button class="action-button" on:click={leaveRide}>Leave</button>
+            {#if rideDetails.data.userHost}
+                <button class="action-button" on:click={leaveRide}>Delete</button>
+            {:else}
+                <button class="action-button" on:click={leaveRide}>Leave</button>
+            {/if}
         {/if}
     {:else}
         <p class="loading-text">Loading ride details...</p>

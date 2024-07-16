@@ -1,4 +1,3 @@
-<!-- MakeRides.svelte -->
 <script>
     import { writable } from 'svelte/store';
     import { navigate } from 'svelte-routing';
@@ -48,6 +47,7 @@
             }
 
             console.log('Ride created successfully.');
+            alert('Ride created successfully!');
             navigate('/entrypage'); // Redirect to entry page after successful creation
         } catch (error) {
             console.error('Error creating ride:', error);
@@ -86,8 +86,8 @@
         <label for="seats">Seats:</label>
         <input type="number" id="seats" name="seats" bind:value={$ride.seats} min="2" required>
 
-        <label for="price">Price:</label>
-        <input type="number" id="price" name="price" bind:value={$ride.price} min="0" step="0.01" required>
+        <label for="price">Total Price:</label>
+        <input type="number" id="price" name="price" bind:value={$ride.price} min="0" step="1" required>
 
         <label for="startingPoint">Starting Point:</label>
         <select id="startingPoint" name="startingPoint" bind:value={$ride.startingPoint}>

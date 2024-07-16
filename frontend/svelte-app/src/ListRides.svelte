@@ -1,4 +1,3 @@
-<!-- ListRides.svelte -->
 <script>
     import { onMount } from 'svelte';
     import { navigate } from 'svelte-routing';
@@ -7,6 +6,7 @@
     let rides = []; // Initialize rides array to store fetched rides
     let startPoint = ''; // State variable for start point filter
     let destination = ''; // State variable for destination filter
+
     // Fetch rides on component mount
     const fetchRides = async () => {
         try {
@@ -32,11 +32,14 @@
             console.error('Error fetching rides:', error); // Log error if fetch throws an exception
         }
     };
+
     onMount(fetchRides); // Call fetchRides function when component mounts
+
     // Function to navigate to ride details page with ride ID
     const navigateToRideDetails = (rideid) => {
         navigate(`/ridedetails/${rideid}`); // Navigate to ride details page with ride id
     };
+
     // Function to extract timestamp from MongoDB ObjectId
     const extractTimestampFromObjectId = (objectId) => {
         try {
@@ -47,15 +50,26 @@
             return null;
         }
     };
+
     // Function to format location based on type (assuming location is in GeoJSON format)
     const formatLocation = (location) => {
         switch (location.type) {
             case 'Point':
-                return `${location.coordinates[0]}, ${location.coordinates[1]}`; // Format coordinates as string
+                // Check if coordinates match predefined values
+                if (location.coordinates[0] === 78.57416064972438 && location.coordinates[1] === 17.54501208500703) {
+                    return 'Campus';
+                } else if (location.coordinates[0] === 78.42932100501844 && location.coordinates[1] === 17.23691860120178) {
+                    return 'Airport';
+                } else if (location.coordinates[0] === 78.50200873815618 && location.coordinates[1] === 17.433382092720095) {
+                    return 'Railway Station';
+                } else {
+                    return `${location.coordinates[0]}, ${location.coordinates[1]}`; // Default: return coordinates
+                }
             default:
                 return 'Unknown Location'; // Return default text for unknown location type
         }
     };
+
     // Function to handle search rides based on start point and destination (not implemented in this example)
     const searchRides = async () => {
         // Implementation of search functionality can be added here if needed
