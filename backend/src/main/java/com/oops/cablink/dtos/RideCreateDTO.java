@@ -9,18 +9,19 @@ import java.time.LocalDateTime;
 
 @Data
 public class RideCreateDTO {
+        @Valid
 
-        @NotEmpty
-        @NotBlank
         @NotNull
+        @NotBlank
+        @NotEmpty
         String name;
 
-        @Min(value = 2)
         @NotNull
+        @Min(value = 2)
         int seats;
 
-        @Positive
         @NotNull
+        @Positive
         double price;
 
         @NotNull
@@ -29,7 +30,6 @@ public class RideCreateDTO {
         @NotNull
         GeoJsonObject locationEnd;
 
-        @NotNull
         @Future
         LocalDateTime dateTime;
 }

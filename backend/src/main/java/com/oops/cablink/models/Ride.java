@@ -35,11 +35,11 @@ public class Ride {
     private String name;
 
     @NotNull
-    @DBRef(db = "users")
+    @DocumentReference
     private User host;
 
     @UniqueElements
-    @DBRef(db = "users")
+    @DocumentReference
     private ArrayList<User> riders;
 
     @Positive
