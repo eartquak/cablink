@@ -59,11 +59,11 @@
     function getCoordinates(location) {
         switch (location) {
             case 'Campus':
-                return [1.0, 1.0]; // Replace with actual coordinates
+                return [78.57416064972438, 17.54501208500703]; // Replace with actual coordinates
             case 'Airport':
-                return [2.0, 2.0]; // Replace with actual coordinates
+                return [78.42932100501844, 17.23691860120178]; // Replace with actual coordinates
             case 'Railway Station':
-                return [3.0, 3.0]; // Replace with actual coordinates
+                return [78.50200873815618, 17.433382092720095]; // Replace with actual coordinates
             default:
                 return [0, 0];
         }
