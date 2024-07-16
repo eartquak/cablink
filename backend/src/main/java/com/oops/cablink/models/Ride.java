@@ -56,11 +56,11 @@ public class Ride {
     private int seatsFilled;
 
     @NotNull
-    @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
+    @GeoSpatialIndexed(name = "locationStart", type = GeoSpatialIndexType.GEO_2DSPHERE)
     private GeoJsonPoint locationStart;
 
     @NotNull
-    @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
+    @GeoSpatialIndexed(name = "locationEnd", type = GeoSpatialIndexType.GEO_2DSPHERE)
     private GeoJsonPoint locationEnd;
 
     @NotNull
