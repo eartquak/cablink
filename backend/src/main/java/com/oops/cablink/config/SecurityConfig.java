@@ -23,7 +23,7 @@ public class SecurityConfig {
                 })
                 .oauth2Login(login -> login.successHandler(
                 (request, response, authentication) -> {
-                    response.sendRedirect("http://localhost:8000/api/user/me");
+                    response.sendRedirect("http://localhost:8000/registration");
                 }))
                 .oauth2Client(Customizer.withDefaults())
                 .logout(logout -> logout.logoutSuccessUrl("/").permitAll())
