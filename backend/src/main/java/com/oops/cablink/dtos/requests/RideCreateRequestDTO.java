@@ -3,7 +3,7 @@ package com.oops.cablink.dtos.requests;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.Data;
-import org.geojson.GeoJsonObject;
+import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 
 import java.time.LocalDateTime;
 
@@ -25,10 +25,10 @@ public class RideCreateRequestDTO {
         double price;
 
         @NotNull
-        GeoJsonObject locationStart;
+        GeoJsonPoint locationStart;
 
         @NotNull
-        GeoJsonObject locationEnd;
+        GeoJsonPoint locationEnd;
 
         @NotNull
         @Future
