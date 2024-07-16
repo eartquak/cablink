@@ -6,7 +6,6 @@
     import Login from './Login.svelte';
     import Registration from './Registration.svelte';
     import RideDetails from './RideDetails.svelte';
-    import { component_subscribe } from 'svelte/internal';
 </script>
 
 <Router>
@@ -14,5 +13,5 @@
     <Route path="/entrypage" component={EntryPage} />
     <Route path="/editprofile" component={EditProfile} />
     <Route path="/registration" component={Registration} />
-    <Route path="/ridedetails/:id" component={RideDetails} />
+    <Route path="/ridedetails" component={RideDetails} />
 </Router>

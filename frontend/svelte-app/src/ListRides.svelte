@@ -18,7 +18,7 @@
                         name: ride.name,
                         locationStart: ride.locationStart,
                         locationEnd: ride.locationEnd,
-                        date: ride.date,
+                        date: ride.dateTime,
                         host: ride.host
                         // Add more fields as needed
                     }));
