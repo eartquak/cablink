@@ -2,6 +2,8 @@
 <script>
     import { onMount } from 'svelte';
     import { navigate } from 'svelte-routing';
+    import { writable } from 'svelte/store';
+
     let rides = []; // Initialize rides array to store fetched rides
     let startPoint = ''; // State variable for start point filter
     let destination = ''; // State variable for destination filter
@@ -14,7 +16,7 @@
                 console.log('Fetched rides:', data); // Log fetched data for debugging
                 if (data && data.data) {
                     rides = data.data.map(ride => ({
-                        id: ride.id.timestamp, // Assuming ride.id is the timestamp-based identifier
+                        id: ride.id, // Assuming ride.id is the timestamp-based identifier
                         name: ride.name,
                         locationStart: ride.locationStart,
                         locationEnd: ride.locationEnd,
@@ -32,8 +34,8 @@
     };
     onMount(fetchRides); // Call fetchRides function when component mounts
     // Function to navigate to ride details page with ride ID
-    const navigateToRideDetails = () => {
-        navigate(`/ridedetails/`); // Navigate to ride details page with ride id
+    const navigateToRideDetails = (rideid) => {
+        navigate(`/ridedetails/${rideid}`); // Navigate to ride details page with ride id
     };
     // Function to extract timestamp from MongoDB ObjectId
     const extractTimestampFromObjectId = (objectId) => {
@@ -121,8 +123,8 @@
         <ul>
             {#each rides as ride}
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
-                <li class="ride-box" on:click={() => navigateToRideDetails()}>
-                    <div class="ride-details">Name: <span>{ride.name}</span></div>
+                <li class="ride-box" on:click={() => { navigateToRideDetails(ride.id);}}>
+                    <div class="ride-details">Name: <span>{ride.id}</span></div>
                     <div class="ride-details">Start Point: <span>{formatLocation(ride.locationStart)}</span></div>
                     <div class="ride-details">Destination: <span>{formatLocation(ride.locationEnd)}</span></div>
                     <div class="ride-details">Date & Time: <span>{new Date(ride.date).toLocaleString()}</span></div>
