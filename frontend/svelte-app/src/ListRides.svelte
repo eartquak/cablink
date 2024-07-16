@@ -2,11 +2,9 @@
 <script>
     import { onMount } from 'svelte';
     import { navigate } from 'svelte-routing';
-
     let rides = []; // Initialize rides array to store fetched rides
     let startPoint = ''; // State variable for start point filter
     let destination = ''; // State variable for destination filter
-
     // Fetch rides on component mount
     const fetchRides = async () => {
         try {
@@ -20,7 +18,7 @@
                         name: ride.name,
                         locationStart: ride.locationStart,
                         locationEnd: ride.locationEnd,
-                        date: ride.date,
+                        date: ride.dateTime,
                         host: ride.host
                         // Add more fields as needed
                     }));
@@ -32,14 +30,11 @@
             console.error('Error fetching rides:', error); // Log error if fetch throws an exception
         }
     };
-
     onMount(fetchRides); // Call fetchRides function when component mounts
-
     // Function to navigate to ride details page with ride ID
-    const navigateToRideDetails = (id) => {
-        navigate(`/ridedetails/${id}`); // Navigate to ride details page with ride id
+    const navigateToRideDetails = () => {
+        navigate(`/ridedetails/`); // Navigate to ride details page with ride id
     };
-
     // Function to extract timestamp from MongoDB ObjectId
     const extractTimestampFromObjectId = (objectId) => {
         try {
@@ -50,7 +45,6 @@
             return null;
         }
     };
-
     // Function to format location based on type (assuming location is in GeoJSON format)
     const formatLocation = (location) => {
         switch (location.type) {
@@ -60,7 +54,6 @@
                 return 'Unknown Location'; // Return default text for unknown location type
         }
     };
-
     // Function to handle search rides based on start point and destination (not implemented in this example)
     const searchRides = async () => {
         // Implementation of search functionality can be added here if needed
@@ -76,7 +69,6 @@
         border: 1px solid #ccc;
         border-radius: 5px;
     }
-
     .ride-box {
         background-color: #ffffff;
         border: 1px solid #e0e0e0;
@@ -86,16 +78,13 @@
         cursor: pointer;
         transition: background-color 0.3s ease;
     }
-
     .ride-box:hover {
         background-color: #f5f5f5;
     }
-
     .ride-details {
         font-weight: bold;
         margin-bottom: 8px;
     }
-
     .ride-details span {
         font-weight: normal;
     }
@@ -131,7 +120,8 @@
     {:else}
         <ul>
             {#each rides as ride}
-                <li class="ride-box" on:click={() => navigateToRideDetails(ride.id)}>
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <li class="ride-box" on:click={() => navigateToRideDetails()}>
                     <div class="ride-details">Name: <span>{ride.name}</span></div>
                     <div class="ride-details">Start Point: <span>{formatLocation(ride.locationStart)}</span></div>
                     <div class="ride-details">Destination: <span>{formatLocation(ride.locationEnd)}</span></div>
