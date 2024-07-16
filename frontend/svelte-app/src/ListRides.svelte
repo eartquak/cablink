@@ -32,8 +32,8 @@
     };
     onMount(fetchRides); // Call fetchRides function when component mounts
     // Function to navigate to ride details page with ride ID
-    const navigateToRideDetails = (id) => {
-        navigate(`/ridedetails/${id}`); // Navigate to ride details page with ride id
+    const navigateToRideDetails = () => {
+        navigate(`/ridedetails/`); // Navigate to ride details page with ride id
     };
     // Function to extract timestamp from MongoDB ObjectId
     const extractTimestampFromObjectId = (objectId) => {
@@ -120,7 +120,8 @@
     {:else}
         <ul>
             {#each rides as ride}
-                <li class="ride-box" on:click={() => navigateToRideDetails(ride.id)}>
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <li class="ride-box" on:click={() => navigateToRideDetails()}>
                     <div class="ride-details">Name: <span>{ride.name}</span></div>
                     <div class="ride-details">Start Point: <span>{formatLocation(ride.locationStart)}</span></div>
                     <div class="ride-details">Destination: <span>{formatLocation(ride.locationEnd)}</span></div>
