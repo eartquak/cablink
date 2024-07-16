@@ -31,5 +31,6 @@ public class RideCreateDTO {
         GeoJsonObject locationEnd;
 
         @Future
+        @NotNull
         LocalDateTime dateTime;
 }
