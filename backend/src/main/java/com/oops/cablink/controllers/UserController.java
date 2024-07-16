@@ -4,8 +4,8 @@ import com.oops.cablink.services.UserService;
 import com.oops.cablink.repositories.UserRepository;
 import com.oops.cablink.models.User;
 import com.oops.cablink.repositories.RideRepository;
-import com.oops.cablink.dtos.UserCreateDTO;
-import com.oops.cablink.dtos.UserEditDTO;
+import com.oops.cablink.dtos.requests.UserCreateRequestDTO;
+import com.oops.cablink.dtos.requests.UserEditRequestDTO;
 import com.oops.cablink.response.GenericResponse;
 
 import jakarta.validation.Valid;
@@ -44,7 +44,7 @@ public class UserController {
 
             @Valid
             @RequestBody
-            UserCreateDTO userCreateDTO
+            UserCreateRequestDTO userCreateRequestDTO
             ) {
         GenericResponse userResponse = userService.getUser(principal);
         if (userResponse.httpStatus == HttpStatus.OK) {
@@ -56,7 +56,7 @@ public class UserController {
                 new ObjectId(),
                 Objects.requireNonNull(principal.getAttribute("name")).toString(),
                 Objects.requireNonNull(principal.getAttribute("email")).toString(),
-                userCreateDTO.getPhNo(),
+                userCreateRequestDTO.getPhNo(),
                 principal.getAttribute("picture")
         );
 
@@ -100,7 +100,7 @@ public class UserController {
 
             @RequestBody
             @Valid
-            UserEditDTO userEditDTO) {
+            UserEditRequestDTO userEditRequestDTO) {
 
         GenericResponse userResponse = userService.getUser(principal);
         if (userResponse.httpStatus != HttpStatus.OK) {
@@ -109,7 +109,7 @@ public class UserController {
 
         final User currentUser = (User)userResponse.data;
 
-        if (userEditDTO == null) {
+        if (userEditRequestDTO == null) {
             return new ResponseEntity<GenericResponse>(
                     new GenericResponse(
                             "Error",
@@ -123,14 +123,14 @@ public class UserController {
         BigInteger newPhNo = currentUser.getPhNo();
         String newDpURL = currentUser.getDpURL();
 
-        if (userEditDTO.getName() != null) {
-            newName = userEditDTO.getName();
+        if (userEditRequestDTO.getName() != null) {
+            newName = userEditRequestDTO.getName();
         }
-        if (userEditDTO.getPhNo() != null) {
-            newPhNo = userEditDTO.getPhNo();
+        if (userEditRequestDTO.getPhNo() != null) {
+            newPhNo = userEditRequestDTO.getPhNo();
         }
-        if (userEditDTO.getDpURL() != null) {
-            newDpURL = userEditDTO.getDpURL();
+        if (userEditRequestDTO.getDpURL() != null) {
+            newDpURL = userEditRequestDTO.getDpURL();
         }
 
         User user = new User(

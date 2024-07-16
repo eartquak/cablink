@@ -18,11 +18,14 @@ public interface RideRepository extends MongoRepository<Ride, ObjectId> {
     @Query("{ riders: ObjectId('?0')}")
     List<Ride> findRidesByHost(ObjectId id);
 
-    @Query("{ _id: ObjectId('?0') , riders: ObjectId('?1') }")
+    @Query("{ _id: ObjectId('?0'), riders: ObjectId('?1') }")
     Optional<Ride> isUserInRide(ObjectId id, ObjectId riders);
 
+    @Query("{ _id: ObjectId('?0'), host: ObjectId('?1') }")
+    Optional<Ride> isUserHost(ObjectId id, ObjectId host);
+
     @Query("{ '_id': ObjectId('?0') }")
-    @Update("{ $pull: { riders: ObjectId('?1') } }")
+    @Update("{ $pull: { riders: ObjectId('?1') }, $inc: { seatsFilled: -1 } }")
     int removeUserFromRide(ObjectId id, ObjectId riders);
 }
 

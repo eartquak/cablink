@@ -1,11 +1,13 @@
 package com.oops.cablink.controllers;
 
+import com.oops.cablink.dtos.responses.RideDetailsResponseDTO;
+import com.oops.cablink.dtos.requests.RideQueryRequestDTO;
 import com.oops.cablink.services.UserService;
 import com.oops.cablink.models.Ride;
 import com.oops.cablink.models.User;
 import com.oops.cablink.repositories.RideRepository;
 import com.oops.cablink.response.GenericResponse;
-import com.oops.cablink.dtos.RideCreateDTO;
+import com.oops.cablink.dtos.requests.RideCreateRequestDTO;
 import jakarta.validation.Valid;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +41,7 @@ public class RideController {
 
             @Valid
             @RequestBody
-            RideCreateDTO rideCreateDTO
+            RideCreateRequestDTO rideCreateRequestDTO
     ) {
         GenericResponse userResponse = userService.getUser(principal);
         if (userResponse.httpStatus != HttpStatus.OK) {
@@ -50,15 +52,15 @@ public class RideController {
 
         Ride ride = new Ride(
                 new ObjectId(),
-                rideCreateDTO.getName(),
+                rideCreateRequestDTO.getName(),
                 currentUser,
                 new ArrayList<User>(),
-                rideCreateDTO.getPrice(),
-                rideCreateDTO.getSeats(),
+                rideCreateRequestDTO.getPrice(),
+                rideCreateRequestDTO.getSeats(),
                 1,
-                rideCreateDTO.getLocationStart(),
-                rideCreateDTO.getLocationEnd(),
-                rideCreateDTO.getDateTime(),
+                rideCreateRequestDTO.getLocationStart(),
+                rideCreateRequestDTO.getLocationEnd(),
+                rideCreateRequestDTO.getDateTime(),
                 true
         );
 
@@ -120,10 +122,21 @@ public class RideController {
         final User currentUser = (User)userResponse.data;
 
         final Optional<Ride> currentRideOptional = rideRepository.findById(id);
-        return currentRideOptional.map(ride -> new ResponseEntity<GenericResponse>(
-                new GenericResponse(ride, HttpStatus.OK), HttpStatus.OK
-        )).orElseGet(() -> new ResponseEntity<GenericResponse>(
-                new GenericResponse("No Ride with this ID", HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND)
+
+        if (currentRideOptional.isEmpty()) {
+            return new ResponseEntity<GenericResponse>(
+                    new GenericResponse("No Ride with this ID", HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND
+            );
+        }
+
+        RideDetailsResponseDTO rideDetailsResponseDTO = new RideDetailsResponseDTO(
+                currentRideOptional.get(),
+                rideRepository.isUserInRide(id, currentUser.getId()).isPresent(),
+                rideRepository.isUserHost(id, currentUser.getId()).isPresent()
+        );
+
+        return new ResponseEntity<GenericResponse>(
+                new GenericResponse(rideDetailsResponseDTO, HttpStatus.OK), HttpStatus.OK
         );
     }
 
@@ -151,7 +164,7 @@ public class RideController {
         }
         Ride currentRide = currentRideOptional.get();
         currentRide.getRiders().add(currentUser);
-        currentRide.setSeatsFilled(currentRide.getSeatsFilled()+1);
+        currentRide.setSeatsFilled(currentRide.getRiders().size());
 
         if (rideRepository.isUserInRide(id, currentUser.getId()).isPresent()) {
             return new ResponseEntity<GenericResponse>(

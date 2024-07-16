@@ -1,4 +1,4 @@
-package com.oops.cablink.dtos;
+package com.oops.cablink.dtos.requests;
 
 
 import jakarta.validation.Valid;
@@ -10,7 +10,7 @@ import lombok.Data;
 import java.math.BigInteger;
 
 @Data
-public class UserCreateDTO {
+public class UserCreateRequestDTO {
         @Valid
 
         @NotNull(message = "cannot be null")
