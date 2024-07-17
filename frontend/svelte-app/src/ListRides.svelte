@@ -5,28 +5,24 @@
     import L from 'leaflet';
     import 'leaflet/dist/leaflet.css';
     import * as turf from '@turf/turf';
-    
 
-    // Mode state: 0 for All Rides, 1 for My Rides
     const currentMode = writable(0);
 
     let rides = [];
     let startPoint = '';
     let destination = '';
-    let searchDateTime = ''; // New state for search datetime
+    let searchDateTime = ''; 
     let startLatitude = '';
     let startLongitude = '';
     let destLatitude = '';
     let destLongitude = '';
 
-    // Example coordinates for the location names
     const locationCoordinates = {
         'Campus': [78.5741606497244, 17.545012085007],
         'Airport': [78.4293210050184, 17.2369186012018],
         'Railway Station': [78.5020087381562, 17.4333820927201]
     };
 
-    // Fetch all rides from backend API
     const fetchAllRides = async () => {
         try {
             const response = await fetch('/api/ride/all');
@@ -45,7 +41,7 @@
                             type: ride.locationEnd.type,
                             coordinates: ride.locationEnd.coordinates
                         },
-                        date: new Date(ride.dateTime).getTime(), // Convert date string to milliseconds
+                        date: new Date(ride.dateTime).getTime(), 
                         host: ride.host
                     }));
                 }
@@ -57,7 +53,6 @@
         }
     };
 
-    // Fetch rides for the logged-in user
     const fetchMyRides = async () => {
         try {
             const response = await fetch('/api/user/rides');
@@ -76,7 +71,7 @@
                             type: ride.locationEnd.type,
                             coordinates: ride.locationEnd.coordinates
                         },
-                        date: new Date(ride.dateTime).getTime(), // Convert date string to milliseconds
+                        date: new Date(ride.dateTime).getTime(), 
                         host: ride.host
                     }));
                 }
@@ -88,10 +83,9 @@
         }
     };
 
-    // Fetch rides based on current mode
     const fetchRides = async () => {
-        const mode = $currentMode; // Get current mode from store
-        rides = []; // Clear existing rides
+        const mode = $currentMode; 
+        rides = []; 
         if (mode === 0) {
             await fetchAllRides();
         } else if (mode === 1) {
@@ -99,14 +93,12 @@
         }
     };
 
-    onMount(fetchRides); // Call fetchRides function when component mounts
+    onMount(fetchRides); 
 
-    // Function to navigate to ride details page with ride ID
     const navigateToRideDetails = (rideid) => {
         navigate(`/ridedetails/${rideid}`);
     };
 
-    // Function to format location based on type (assuming location is in GeoJSON format)
     const formatLocation = (location) => {
         switch (location.type) {
             case 'Point':
@@ -116,15 +108,13 @@
         }
     };
 
-    // Toggle between All Rides and My Rides
     const toggleMode = (mode) => {
         currentMode.set(mode);
-        fetchRides(); // Fetch rides based on the selected mode
+        fetchRides(); 
     };
 
-    // Function to validate search inputs
     const validateInputs = () => {
-        // Check if at least one search criterion is selected
+
         if (!startPoint && (!startLatitude || !startLongitude) && !destination && (!destLatitude || !destLongitude) && !searchDateTime) {
             alert('Please select at least one of Start Point, Destination, or Search DateTime.');
             return false;
@@ -132,30 +122,26 @@
         return true;
     };
 
-    // Haversine distance calculation function
     const haversineDistance = (lat1, lon1, lat2, lon2) => {
-        const R = 6371; // Radius of the Earth in km
+        const R = 6371; 
         const dLat = (lat2 - lat1) * Math.PI / 180;
         const dLon = (lon2 - lon1) * Math.PI / 180;
         const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
                   Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
                   Math.sin(dLon / 2) * Math.sin(dLon / 2);
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        const distance = R * c; // Distance in km
-        return distance * 1000; // Convert to meters
+        const distance = R * c; 
+        return distance * 1000; 
     };
 
-    // Function to search rides based on startPoint, destination, and time
     const searchRides = async () => {
-        // Validate inputs before proceeding
+
         if (!validateInputs()) {
             return;
         }
 
-        // Fetch rides based on current mode to ensure data is up to date
         await fetchRides();
 
-        // Determine which location to use for filtering
         let startCoordinates = null;
         let destCoordinates = null;
 
@@ -176,13 +162,10 @@
             return;
         }
 
-        // Convert search datetime to milliseconds since epoch
         const searchTimeMS = searchDateTime ? new Date(searchDateTime).getTime() : null;
 
-        // Filter rides based on the criteria
         const filteredRides = rides.filter(ride => {
 
-            // Calculate distances from search coordinates to ride start and destination points
             var point1 = turf.point(ride.locationStart.coordinates);
             var point2 = turf.point(ride.locationEnd.coordinates);
 
@@ -192,40 +175,34 @@
             var startDistance = turf.distance(point1, point1s);
             var destDistance = turf.distance(point2, point2s);
 
-            // Calculate time difference if searchTimeMS is defined
             const timeMatch = !searchTimeMS || Math.abs(ride.date - searchTimeMS) <= 30 * 60 * 1000;
 
             console.log(startDistance)
             console.log(destDistance)
             console.log(timeMatch)
 
-            // Check if ride matches the criteria (distance less than 1 km for start and destination)
             return (startDistance <= 1) && (destDistance <= 1) && timeMatch;
         });
 
-        // Update the rides array with the filtered rides
         rides = filteredRides;
     };
 
-    // Leaflet Map initialization
     let map = null;
     let startMarker = null;
     let destMarker = null;
 
     function initializeMap() {
-        // Default center (Hyderabad)
+
         map = L.map('map').setView([17.385, 78.4867], 13);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // Add click event listener to map
         map.on('click', onMapClick);
 
-        map.invalidateSize(); // Ensure the map size is correct initially
+        map.invalidateSize(); 
 
-        // Initialize markers if coordinates are already set
         if (startLatitude && startLongitude) {
             setStartMarker([startLatitude, startLongitude]);
         }
@@ -234,12 +211,9 @@
         }
     }
 
-    // Function to handle click on the map
-    // Function to handle click on the map
     function onMapClick(e) {
     const { lat, lng } = e.latlng;
 
-    // Determine whether to update start or destination coordinates
     if (startPoint === '' && startLatitude === '' && startLongitude === '') {
         startLatitude = lat.toFixed(6);
         startLongitude = lng.toFixed(6);
@@ -251,8 +225,6 @@
     }
 }
 
-
-    // Function to set starting point marker
     function setStartMarker(coordinates) {
         if (startMarker) {
             startMarker.setLatLng(coordinates);
@@ -261,7 +233,6 @@
         }
     }
 
-    // Function to set destination marker
     function setDestMarker(coordinates) {
         if (destMarker) {
             destMarker.setLatLng(coordinates);
@@ -270,7 +241,6 @@
         }
     }
 
-    // Function to clear starting point coordinates
     function clearStartCoordinates() {
         startLatitude = '';
         startLongitude = '';
@@ -280,7 +250,6 @@
         }
     }
 
-    // Function to clear destination coordinates
     function clearDestCoordinates() {
         destLatitude = '';
         destLongitude = '';
@@ -290,34 +259,30 @@
         }
     }
 
-    // Lifecycle hook to initialize the map
     onMount(() => {
         initializeMap();
     });
 </script>
 <style>
-    /* Grid container for layout control */
+
     .grid-container {
         display: grid;
-        grid-template-columns: 1fr; /* Single column on mobile */
-        gap: 20px; /* Gap between columns */
-        height: 100vh; /* Set height of the grid container to full viewport height */
-        overflow-y: auto; /* Enable vertical scrolling if content exceeds viewport height */
+        grid-template-columns: 1fr; 
+        gap: 20px; 
+        height: 100vh; 
+        overflow-y: auto; 
     }
 
-    /* Left side content styling */
     .left-content {
         padding-right: 20px;
         padding-left: 20px;
     }
 
-    /* Right side (ride list) styling */
     .right-content {
         padding-left: 20px;
         padding-right: 20px;
     }
 
-    /* Your existing CSS styles */
     .ride-list {
         max-height: 400px;
         overflow-y: auto;
@@ -344,15 +309,15 @@
     .ride-details span {
         font-weight: normal;
     }
-    /* Style for map container */
+
     #map {
-        height: 300px; /* Set desired height */
-        width: 100%; /* Full width */
+        height: 300px; 
+        width: 100%; 
         border-radius: 8px;
         border: 1px solid #ccc;
         margin-top: 20px;
     }
-    /* Additional styles for coordinate inputs */
+
     .coordinate-inputs {
         margin-bottom: 20px;
     }

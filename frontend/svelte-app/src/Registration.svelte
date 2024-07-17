@@ -2,30 +2,29 @@
 <script>
     let phNo = '';
     let errorMessage = '';
-    let userType = ''; // Initialize userType variable
+    let userType = ''; 
 
     async function checkUserAndRedirect() {
         try {
             const response = await fetch('api/user/me');
-            
+
             if (response.status === 200) {
                 console.log('User exists, redirecting to entrypage');
                 window.location = '/entrypage';
             } else {
                 console.log('User does not exist or error fetching data');
-                // Handle the case where user does not exist or other error scenarios
+
             }
         } catch (error) {
             console.error('Error checking user:', error);
-            // Handle network errors or other exceptions
+
         }
     }
 
-    // Call the function to initiate the check and redirect
     checkUserAndRedirect();
 
     async function handleRegistration() {
-        // Validate phone number format
+
         if (!isValidPhoneNumber(phNo)) {
             errorMessage = 'Please enter a valid 10-digit phone number.';
             blinkError();
@@ -33,7 +32,7 @@
         }
 
         try {
-            // Attempt to register the phone number and userType
+
             const registrationResponse = await fetch('api/user/create', {
                 method: 'POST',
                 headers: {
@@ -41,21 +40,19 @@
                 },
                 body: JSON.stringify({
                     phNo: phNo,
-                    userType: userType // Include userType in the request body
+                    userType: userType 
                 })
             });
 
             if (registrationResponse.status === 201 || registrationResponse.status === 409) {
-                // If created or conflict (phone number already exists), redirect to entrypage
-                window.location = '/entrypage'; // Replace with your actual route
-                // Alternatively, if using a router like svelte-routing:
-                // import { goto } from '$app/navigation';
-                // goto('/entrypage');
+
+                window.location = '/entrypage'; 
+
             } else {
                 const errorData = await registrationResponse.json();
                 errorMessage = errorData.message || 'Registration failed.';
                 console.error('Registration failed:', errorMessage);
-                // Handle other failure cases (show error message, reset form, etc.)
+
             }
 
         } catch (error) {
@@ -64,25 +61,22 @@
         }
     }
 
-    // Function to validate phone number format
     function isValidPhoneNumber(number) {
-        // Remove all non-digit characters
+
         const cleaned = number.replace(/\D/g, '');
-        // Check if it's exactly 10 digits
+
         return cleaned.length === 10;
     }
 
-    // Function to make error message blink
     function blinkError() {
         const errorElement = document.querySelector('.error-message');
         errorElement.classList.add('blink');
 
         setTimeout(() => {
             errorElement.classList.remove('blink');
-        }, 1000); // Adjust blinking duration (milliseconds)
+        }, 1000); 
     }
 
-    // Function to reset error message when input is valid
     function resetError() {
         if (isValidPhoneNumber(phNo)) {
             errorMessage = '';
@@ -91,7 +85,7 @@
 </script>
 
 <style>
-    /* Global styles */
+
     body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         display: flex;
@@ -108,8 +102,8 @@
         padding: 20px;
         border-radius: 8px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        max-width: 400px; /* Limit width for better readability */
-        width: 90%; /* Ensure full width responsiveness */
+        max-width: 400px; 
+        width: 90%; 
     }
 
     .registration-container h2 {
@@ -121,7 +115,7 @@
         color: #dc3545;
         font-size: 0.9rem;
         margin-top: 10px;
-        opacity: 1; /* Initially visible */
+        opacity: 1; 
         transition: opacity 0.3s ease-in-out;
     }
 

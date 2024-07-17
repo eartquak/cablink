@@ -5,22 +5,19 @@
     import Profile from './Profile.svelte';
     import ListRides from './ListRides.svelte';
     import MakeRides from './MakeRides.svelte';
-    import Maps from './Maps.svelte'; // Import the Maps component
+    import Maps from './Maps.svelte'; 
 
-    let activeTab = 'profile'; // Initially active tab is 'profile'
+    let activeTab = 'profile'; 
 
-    // Function to handle tab change
     function changeTab(tab) {
         activeTab = tab;
-        // Optional: Update URL with router if using svelte-routing
-        // navigate(`/entry/${tab}`);
+
     }
 
-    // Use location to detect initial tab from URL (if needed)
     const location = useLocation();
     onMount(() => {
         const path = location.pathname;
-        const tab = path.split('/').pop(); // Get last segment of path
+        const tab = path.split('/').pop(); 
         if (['profile', 'ListRides', 'MakeRides', 'Maps'].includes(tab)) {
             activeTab = tab;
         }
@@ -28,15 +25,15 @@
 </script>
 
 <style>
-    /* Your CSS styles for entry page */
+
     .entry-page {
-        height: calc(100vh - 60px); /* Adjusted height to accommodate tabs */
+        height: calc(100vh - 60px); 
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: flex-start;
-        background-color: #f3f6f8; /* Soft blue background */
-        overflow-y: auto; /* Allow content to scroll if needed */
+        background-color: #f3f6f8; 
+        overflow-y: auto; 
     }
 
     .tabs {
@@ -47,7 +44,7 @@
         bottom: 0;
         background-color: #ffffff;
         box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-        z-index: 1; /* Ensure tabs are above content */
+        z-index: 1; 
     }
 
     .tab {
@@ -58,7 +55,7 @@
     }
 
     .tab.active {
-        color: #007bff; /* Active tab color */
+        color: #007bff; 
     }
 
     .tab .icon {
