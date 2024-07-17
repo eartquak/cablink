@@ -30,14 +30,13 @@
 <style>
     /* Your CSS styles for entry page */
     .entry-page {
-        height: 100vh;
+        height: calc(100vh - 60px); /* Adjusted height to accommodate tabs */
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: flex-start;
-        padding-bottom: 60px; /* Space for tabs */
         background-color: #f3f6f8; /* Soft blue background */
-        overflow: hidden; /* Prevent scrolling */
+        overflow-y: auto; /* Allow content to scroll if needed */
     }
 
     .tabs {
@@ -68,21 +67,7 @@
 </style>
 
 <div class="entry-page">
-    <div class="tabs">
-        <div class="tab {activeTab === 'profile' ? 'active' : ''}" on:click={() => changeTab('profile')}>
-            <span class="icon">👤</span>
-        </div>
-        <div class="tab {activeTab === 'ListRides' ? 'active' : ''}" on:click={() => changeTab('ListRides')}>
-            <span class="icon">🚕</span>
-        </div>
-        <div class="tab {activeTab === 'MakeRides' ? 'active' : ''}" on:click={() => changeTab('MakeRides')}>
-            <span class="icon">➕</span>
-        </div>
-        <div class="tab {activeTab === 'Maps' ? 'active' : ''}" on:click={() => changeTab('Maps')}>
-            <span class="icon">🗺️</span>
-        </div>
-    </div>
-
+    <!-- Content goes here -->
     {#if activeTab === 'profile'}
         <Profile />
     {/if}
@@ -98,4 +83,20 @@
     {#if activeTab === 'Maps'}
         <Maps />
     {/if}
+
+    <!-- Tabs section -->
+    <div class="tabs">
+        <div class="tab {activeTab === 'profile' ? 'active' : ''}" on:click={() => changeTab('profile')}>
+            <span class="icon">👤</span>
+        </div>
+        <div class="tab {activeTab === 'ListRides' ? 'active' : ''}" on:click={() => changeTab('ListRides')}>
+            <span class="icon">🚕</span>
+        </div>
+        <div class="tab {activeTab === 'MakeRides' ? 'active' : ''}" on:click={() => changeTab('MakeRides')}>
+            <span class="icon">➕</span>
+        </div>
+        <div class="tab {activeTab === 'Maps' ? 'active' : ''}" on:click={() => changeTab('Maps')}>
+            <span class="icon">🗺️</span>
+        </div>
+    </div>
 </div>
