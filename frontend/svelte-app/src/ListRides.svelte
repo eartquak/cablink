@@ -5,6 +5,7 @@
     import L from 'leaflet';
     import 'leaflet/dist/leaflet.css';
     import * as turf from '@turf/turf';
+    
 
     // Mode state: 0 for All Rides, 1 for My Rides
     const currentMode = writable(0);
