@@ -98,6 +98,22 @@
         }
     }
 
+    function clearStartingPoint() {
+        $ride.startingPoint = '';
+        if (startingMarker) {
+            map.removeLayer(startingMarker);
+            startingMarker = null;
+        }
+    }
+
+    function clearDestinationPoint() {
+        $ride.destinationPoint = '';
+        if (destinationMarker) {
+            map.removeLayer(destinationMarker);
+            destinationMarker = null;
+        }
+    }
+
     function getCoordinates(location) {
         const [lat, lng] = location.split(',').map(coord => parseFloat(coord.trim()));
         return [lng, lat]; // Leaflet uses [lng, lat] format
@@ -150,6 +166,13 @@
     .spacer {
         flex-grow: 1; /* Pushes everything to the top, creating space at the bottom */
     }
+
+    .clear-button {
+        font-size: 12px;
+        padding: 3px 6px;
+        margin-left: 6px;
+        cursor: pointer;
+    }
 </style>
 
 <div class="container">
@@ -165,11 +188,17 @@
             <label for="price">Total Price:</label>
             <input type="number" id="price" name="price" bind:value={$ride.price} min="0" step="1" required>
 
-            <label for="startingPoint">Starting Point:</label>
-            <input type="text" id="startingPoint" name="startingPoint" bind:value={$ride.startingPoint} readonly>
+            <div style="display: flex; align-items: center;">
+                <label for="startingPoint">Starting Point:</label>
+                <input type="text" id="startingPoint" name="startingPoint" bind:value={$ride.startingPoint} readonly>
+                <button type="button" class="clear-button" on:click={clearStartingPoint}>Clear</button>
+            </div>
 
-            <label for="destinationPoint">Destination Point:</label>
-            <input type="text" id="destinationPoint" name="destinationPoint" bind:value={$ride.destinationPoint} readonly>
+            <div style="display: flex; align-items: center;">
+                <label for="destinationPoint">Destination Point:</label>
+                <input type="text" id="destinationPoint" name="destinationPoint" bind:value={$ride.destinationPoint} readonly>
+                <button type="button" class="clear-button" on:click={clearDestinationPoint}>Clear</button>
+            </div>
 
             <label for="dateTime">Date and Time:</label>
             <input type="datetime-local" id="dateTime" name="dateTime" bind:value={$ride.dateTime} required>
