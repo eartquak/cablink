@@ -1,3 +1,4 @@
+<!-- RideForm.svelte -->
 <script>
     import { writable } from 'svelte/store';
     import { navigate } from 'svelte-routing';
@@ -141,10 +142,11 @@
         display: flex;
         flex-direction: column;
         align-items: stretch;
-        max-width: 800px;
+        max-width: 100%; /* Adjust maximum width to full viewport */
         margin: 0 auto;
         padding: 20px;
-        min-height: 100%; /* Ensure the container takes at least the full viewport height */
+        min-height: 100vh; /* Ensure the container takes at least the full viewport height */
+        overflow-x: hidden; /* Prevent horizontal overflow */
     }
 
     .form {
@@ -153,10 +155,11 @@
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         padding: 20px;
         margin-bottom: 20px;
+        overflow: hidden; /* Ensure content doesn't overflow */
     }
 
     #map {
-        height: 400px;
+        height: 300px; /* Adjust map height for mobile view */
         width: 100%;
         border-radius: 8px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -174,7 +177,6 @@
         cursor: pointer;
     }
 </style>
-
 <div class="container">
     <div class="form">
         <h2>Make a Ride</h2>
@@ -188,16 +190,20 @@
             <label for="price">Total Price:</label>
             <input type="number" id="price" name="price" bind:value={$ride.price} min="0" step="1" required>
 
-            <div style="display: flex; align-items: center;">
+            <div class="input-container">
                 <label for="startingPoint">Starting Point:</label>
-                <input type="text" id="startingPoint" name="startingPoint" bind:value={$ride.startingPoint} readonly>
-                <button type="button" class="clear-button" on:click={clearStartingPoint}>Clear</button>
+                <div class="input-group">
+                    <input type="text" id="startingPoint" name="startingPoint" bind:value={$ride.startingPoint} readonly>
+                </div>
             </div>
 
-            <div style="display: flex; align-items: center;">
+            <div class="input-container">
                 <label for="destinationPoint">Destination Point:</label>
-                <input type="text" id="destinationPoint" name="destinationPoint" bind:value={$ride.destinationPoint} readonly>
-                <button type="button" class="clear-button" on:click={clearDestinationPoint}>Clear</button>
+                <div class="input-group">
+                    <input type="text" id="destinationPoint" name="destinationPoint" bind:value={$ride.destinationPoint} readonly>
+                    <button type="button" class="clear-button" on:click={clearStartingPoint}>Clear</button>
+                    <button type="button" class="clear-button" on:click={clearDestinationPoint}>Clear</button>
+                </div>
             </div>
 
             <label for="dateTime">Date and Time:</label>
@@ -211,5 +217,5 @@
         <h2>Map</h2>
     </div>
 
-    <div class="spacer"></div> <!-- This div creates space at the bottom for scrolling -->
+    <div class="spacer"></div>
 </div>
