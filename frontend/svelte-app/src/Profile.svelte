@@ -2,12 +2,17 @@
 <script>
     import { onMount } from 'svelte';
     import { navigate } from 'svelte-routing';
+    import { writable } from 'svelte/store'; // Import writable store
+
+    // Create a writable store to export userType
+    export const userType = writable('');
 
     let user = {
         name: '',
         email: '',
         phNo: '',
-        dpURL: ''
+        dpURL: '',
+        userType: '' // Add userType to user object
     };
 
     async function fetchUserProfile() {
@@ -18,6 +23,9 @@
             }
             const userData = await response.json();
             user = userData.data;
+
+            // Update userType in the writable store
+            userType.set(user.userType);
         } catch (error) {
             console.error('Error fetching user profile:', error);
             // Handle error fetching user profile data
@@ -135,6 +143,7 @@
         <p><strong>Name:</strong> {user.name}</p>
         <p><strong>Email:</strong> {user.email}</p>
         <p><strong>Phone Number:</strong> {user.phNo}</p>
+        <p><strong>User Type:</strong> {user.userType}</p>
         <!-- Add other details as needed -->
     </div>
     
