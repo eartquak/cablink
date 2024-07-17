@@ -11,7 +11,7 @@
         price: 0,
         startingPoint: '',
         destinationPoint: '',
-        dateTime: new Date().toISOString().slice(0, 16), // Initial datetime
+        dateTime: new Date().toISOString().slice(0, 16), 
     });
 
     let map = null;
@@ -19,14 +19,14 @@
     let destinationMarker = null;
 
     function initializeMap() {
-        map = L.map('map').setView([17.385, 78.4867], 13); // Default center (Hyderabad)
+        map = L.map('map').setView([17.385, 78.4867], 13); 
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
         map.on('click', onMapClick);
-        map.invalidateSize(); // Ensure the map size is correct initially
+        map.invalidateSize(); 
     }
 
     function onMapClick(e) {
@@ -58,7 +58,6 @@
     async function saveRide(event) {
         event.preventDefault();
 
-        // Check if startingPoint and destinationPoint are set
         if ($ride.startingPoint === '' || $ride.destinationPoint === '') {
             alert('Please select both starting and destination points on the map.');
             return;
@@ -92,10 +91,10 @@
 
             console.log('Ride created successfully.');
             alert('Ride created successfully!');
-            navigate('/entrypage'); // Redirect to entry page after successful creation
+            navigate('/entrypage'); 
         } catch (error) {
             console.error('Error creating ride:', error);
-            // Handle error
+
         }
     }
 
@@ -117,14 +116,12 @@
 
     function getCoordinates(location) {
         const [lat, lng] = location.split(',').map(coord => parseFloat(coord.trim()));
-        return [lng, lat]; // Leaflet uses [lng, lat] format
+        return [lng, lat]; 
     }
 
-    // Initialize map on component mount
     import { onMount, afterUpdate } from 'svelte';
     onMount(initializeMap);
 
-    // Resize the map when the window is resized
     afterUpdate(() => {
         map.invalidateSize();
     });
@@ -142,11 +139,11 @@
         display: flex;
         flex-direction: column;
         align-items: stretch;
-        max-width: 100%; /* Adjust maximum width to full viewport */
+        max-width: 100%; 
         margin: 0 auto;
         padding: 20px;
-        min-height: 100vh; /* Ensure the container takes at least the full viewport height */
-        overflow-x: hidden; /* Prevent horizontal overflow */
+        min-height: 100vh; 
+        overflow-x: hidden; 
     }
 
     .form {
@@ -155,19 +152,18 @@
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         padding: 20px;
         margin-bottom: 20px;
-        overflow: hidden; /* Ensure content doesn't overflow */
+        overflow: hidden; 
     }
 
     #map {
-        height: 300px; /* Adjust map height for mobile view */
+        height: 300px; 
         width: 100%;
         border-radius: 8px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
 
-    /* Ensures there's space at the bottom for scrolling */
     .spacer {
-        flex-grow: 1; /* Pushes everything to the top, creating space at the bottom */
+        flex-grow: 1; 
     }
 
     .clear-button {

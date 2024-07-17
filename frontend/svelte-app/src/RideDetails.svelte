@@ -10,7 +10,7 @@
     const fetchRideDetails = async () => {
         currentPath = window.location.pathname;
         selectedRideId = currentPath.substring('/ridedetails/'.length);
-        
+
         try {
             const response = await fetch(`/api/ride/${selectedRideId}`);
             if (response.ok) {
@@ -32,7 +32,7 @@
                 }
             });
             if (response.ok) {
-                // Optionally handle success, such as updating UI or fetching ride details again
+
                 await fetchRideDetails();
                 alert('Joined ride successfully!');
                 navigate('/registration');
@@ -53,7 +53,7 @@
                 }
             });
             if (response.ok) {
-                // Optionally handle success, such as updating UI or fetching ride details again
+
                 await fetchRideDetails();
                 alert('Left ride successfully!');
                 navigate('/registration');
@@ -65,14 +65,12 @@
         }
     };
 
-    // Fetch ride details when component mounts
     onMount(fetchRideDetails);
 
-    // Function to format location based on type (assuming location is in GeoJSON format)
     const formatLocation = (location) => {
         switch (location.type) {
             case 'Point':
-                // Check if coordinates match predefined values
+
                 if (location.coordinates[0] === 78.57416064972438 && location.coordinates[1] === 17.54501208500703) {
                     return 'Campus';
                 } else if (location.coordinates[0] === 78.42932100501844 && location.coordinates[1] === 17.23691860120178) {
@@ -80,14 +78,13 @@
                 } else if (location.coordinates[0] === 78.50200873815618 && location.coordinates[1] === 17.433382092720095) {
                     return 'Railway Station';
                 } else {
-                    return `${location.coordinates[1]}, ${location.coordinates[0]}`; // Default: return coordinates
+                    return `${location.coordinates[1]}, ${location.coordinates[0]}`; 
                 }
             default:
-                return 'Unknown Location'; // Return default text for unknown location type
+                return 'Unknown Location'; 
         }
     };
 
-    // Function to navigate back to the registration page
     const navigateToRegistration = () => {
         navigate('/registration');
     };
@@ -101,12 +98,12 @@
         background-color: #f9f9f9;
         border: 1px solid #ddd;
         border-radius: 8px;
-        text-align: center; /* Center align the content */
+        text-align: center; 
     }
 
     .ride-details-item {
         margin-bottom: 12px;
-        text-align: left; /* Ensure text is left-aligned within each item */
+        text-align: left; 
     }
 
     .ride-details-label {
@@ -189,13 +186,13 @@
         <div class="ride-details-item">
             <span class="ride-details-label">Date & Time:</span> {new Date(rideDetails.data.ride.dateTime).toLocaleString()}
         </div>
-        
+
         {#if rideDetails.data.ride.otp !== 0}
             <div class="ride-details-item">
                 <span class="ride-details-label">OTP:</span> {rideDetails.data.ride.otp}
             </div>
         {/if}
-        
+
         {#if !rideDetails.data.userInRide}
             <button class="action-button" on:click={joinRide}>Join Ride</button>
         {:else}

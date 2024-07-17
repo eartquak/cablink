@@ -2,9 +2,8 @@
 <script>
     import { onMount } from 'svelte';
     import { navigate } from 'svelte-routing';
-    import { writable } from 'svelte/store'; // Import writable store
+    import { writable } from 'svelte/store'; 
 
-    // Create a writable store to export userType
     export const userType = writable('');
 
     let user = {
@@ -12,7 +11,7 @@
         email: '',
         phNo: '',
         dpURL: '',
-        userType: '' // Add userType to user object
+        userType: '' 
     };
 
     async function fetchUserProfile() {
@@ -24,11 +23,10 @@
             const userData = await response.json();
             user = userData.data;
 
-            // Update userType in the writable store
             userType.set(user.userType);
         } catch (error) {
             console.error('Error fetching user profile:', error);
-            // Handle error fetching user profile data
+
         }
     }
 
@@ -40,16 +38,15 @@
                     'Content-Type': 'application/json'
                 },
             });
-            
+
             if (!deleteResponse.ok) {
                 throw new Error('Failed to delete user');
             }
 
-            // Navigate to a different page after successful deletion
-            navigate('/'); // Navigate to home page or another appropriate route
+            navigate('/'); 
         } catch (error) {
             console.error('Error deleting user:', error);
-            // Handle error deleting user
+
         }
     }
 
@@ -57,21 +54,21 @@
 </script>
 
 <style>
-    /* Your existing CSS styles for profile page */
+
     .profile-container {
         max-width: 600px;
         margin: 0 auto;
         padding: 20px;
-        background-color: #f8f9fa; /* Light background color */
+        background-color: #f8f9fa; 
         border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Soft shadow */
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
     }
 
     h2 {
         text-align: center;
         margin-bottom: 20px;
-        color: #343a40; /* Dark text color */
-        font-size: 1.8rem; /* Larger font size */
+        color: #343a40; 
+        font-size: 1.8rem; 
     }
 
     .details {
@@ -81,22 +78,22 @@
     .details p {
         margin-bottom: 10px;
         font-size: 1.2rem;
-        color: #495057; /* Darker text color */
+        color: #495057; 
     }
 
     .profile-picture {
-        width: 150px; /* Adjust size as needed */
-        height: 150px; /* Adjust size as needed */
-        border-radius: 50%; /* Round the image */
-        object-fit: cover; /* Maintain aspect ratio */
-        margin: 0 auto 20px; /* Center the image and add bottom margin */
-        display: block; /* Ensure the image is displayed as a block element */
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Soft shadow */
+        width: 150px; 
+        height: 150px; 
+        border-radius: 50%; 
+        object-fit: cover; 
+        margin: 0 auto 20px; 
+        display: block; 
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
     }
 
     .edit-btn {
         padding: 12px 20px;
-        background-color: #007bff; /* Primary button color */
+        background-color: #007bff; 
         color: white;
         border: none;
         border-radius: 4px;
@@ -107,12 +104,12 @@
     }
 
     .edit-btn:hover {
-        background-color: #0056b3; /* Darker hover color */
+        background-color: #0056b3; 
     }
 
     .delete-btn {
         padding: 12px 20px;
-        background-color: #dc3545; /* Danger button color */
+        background-color: #dc3545; 
         color: white;
         border: none;
         border-radius: 4px;
@@ -122,7 +119,7 @@
     }
 
     .delete-btn:hover {
-        background-color: #c82333; /* Darker hover color */
+        background-color: #c82333; 
     }
 </style>
 
@@ -146,7 +143,7 @@
         <p><strong>User Type:</strong> {user.userType}</p>
         <!-- Add other details as needed -->
     </div>
-    
+
     <button class="edit-btn" on:click={() => navigate('/editprofile')}>Edit Profile</button>
     <button class="delete-btn" on:click={handleDelete}>Delete Account</button>
 </div>

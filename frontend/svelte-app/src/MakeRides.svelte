@@ -8,13 +8,12 @@
         price: 0,
         startingPoint: '',
         destinationPoint: '',
-        dateTime: new Date().toISOString().slice(0, 16), // Initial datetime
+        dateTime: new Date().toISOString().slice(0, 16), 
     });
 
     async function saveRide(event) {
         event.preventDefault();
 
-        // Check if startingPoint and destinationPoint are the same
         if ($ride.startingPoint === $ride.destinationPoint) {
             alert('Starting point and destination point cannot be the same.');
             return;
@@ -48,22 +47,21 @@
 
             console.log('Ride created successfully.');
             alert('Ride created successfully!');
-            navigate('/entrypage'); // Redirect to entry page after successful creation
+            navigate('/entrypage'); 
         } catch (error) {
             console.error('Error creating ride:', error);
-            // Handle error
+
         }
     }
 
-    // Helper function to get coordinates based on selected location
     function getCoordinates(location) {
         switch (location) {
             case 'Campus':
-                return [78.57416064972438, 17.54501208500703]; // Replace with actual coordinates
+                return [78.57416064972438, 17.54501208500703]; 
             case 'Airport':
-                return [78.42932100501844, 17.23691860120178]; // Replace with actual coordinates
+                return [78.42932100501844, 17.23691860120178]; 
             case 'Railway Station':
-                return [78.50200873815618, 17.433382092720095]; // Replace with actual coordinates
+                return [78.50200873815618, 17.433382092720095]; 
             default:
                 return [0, 0];
         }
@@ -71,9 +69,9 @@
 </script>
 
 <style>
-    /* Your CSS styles for MakeRides component */
+
     button[type="submit"] {
-        margin-top: 20px; /* Adjust this value as needed */
+        margin-top: 20px; 
     }
 </style>
 
