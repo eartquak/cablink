@@ -150,6 +150,11 @@ public class RideController {
         }
         Ride currentRide = currentRideOptional.get();
         currentRide.getRiders().add(currentUser);
+        if (currentRide.getRiders().size() > currentRide.getSeats()) {
+            return new ResponseEntity<GenericResponse>(
+                    new GenericResponse("Rider is full", HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST
+            );
+        }
         currentRide.setSeatsFilled(currentRide.getRiders().size());
 
         if (rideRepository.isUserInRide(id, currentUser.getId()).isPresent()) {
