@@ -1,13 +1,7 @@
 <script>
     // You can add any script logic here if needed
     function redirectToGoogleLogin() {
-        // Get the current IP address of the device
-        var ipAddress = window.location.hostname;
         
-        // Construct the URL to redirect to port 8080 of the current IP addresshttp://cab.link.demo.com:8080/api/
-        var redirectUrl = 'http://' + ipAddress + ':8080'+'/api';
-        
-        // Redirect to the constructed URL
         window.location = '/api';
     }
 </script>

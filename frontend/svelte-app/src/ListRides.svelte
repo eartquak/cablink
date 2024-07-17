@@ -2,7 +2,6 @@
     import { onMount } from 'svelte';
     import { navigate } from 'svelte-routing';
     import { writable } from 'svelte/store';
-    import * as turf from '@turf/turf'; // Import Turf.js functions
 
     // Mode state: 0 for All Rides, 1 for My Rides
     const currentMode = writable(0);
@@ -11,6 +10,10 @@
     let startPoint = '';
     let destination = '';
     let searchDateTime = ''; // New state for search datetime
+    let startLatitude = '';
+    let startLongitude = '';
+    let destLatitude = '';
+    let destLongitude = '';
 
     // Example coordinates for the location names
     const locationCoordinates = {
@@ -118,11 +121,24 @@
     // Function to validate search inputs
     const validateInputs = () => {
         // Check if at least one search criterion is selected
-        if (!startPoint && !destination && !searchDateTime) {
+        if (!startPoint && (!startLatitude || !startLongitude) && !destination && (!destLatitude || !destLongitude) && !searchDateTime) {
             alert('Please select at least one of Start Point, Destination, or Search DateTime.');
             return false;
         }
         return true;
+    };
+
+    // Haversine distance calculation function
+    const haversineDistance = (lat1, lon1, lat2, lon2) => {
+        const R = 6371; // Radius of the Earth in km
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const distance = R * c; // Distance in km
+        return distance * 1000; // Convert to meters
     };
 
     // Function to search rides based on startPoint, destination, and time
@@ -136,8 +152,20 @@
         await fetchRides();
 
         // Determine which location to use for filtering
-        const startCoordinates = locationCoordinates[startPoint];
-        const destCoordinates = locationCoordinates[destination];
+        let startCoordinates = null;
+        let destCoordinates = null;
+
+        if (startPoint) {
+            startCoordinates = locationCoordinates[startPoint];
+        } else if (startLatitude && startLongitude) {
+            startCoordinates = [parseFloat(startLatitude), parseFloat(startLongitude)];
+        }
+
+        if (destination) {
+            destCoordinates = locationCoordinates[destination];
+        } else if (destLatitude && destLongitude) {
+            destCoordinates = [parseFloat(destLatitude), parseFloat(destLongitude)];
+        }
 
         if (!startCoordinates || !destCoordinates) {
             console.error('Invalid start point or destination selected');
@@ -149,24 +177,23 @@
 
         // Filter rides based on the criteria
         const filteredRides = rides.filter(ride => {
-            const start = turf.point(ride.locationStart.coordinates);
-            const dest = turf.point(ride.locationEnd.coordinates);
-
-            // Calculate distances if coordinatesToUse is defined
-            let startDistance = turf.distance(turf.point(startCoordinates), start, { units: 'meters' });
-            let destDistance = turf.distance(turf.point(destCoordinates), dest, { units: 'meters' });
+            const { coordinates: startCoords } = ride.locationStart;
+            const { coordinates: destCoords } = ride.locationEnd;
+            console.log(startDistance)
+            // Calculate distances from search coordinates to ride start and destination points
+            const startDistance = haversineDistance(startCoordinates[1], startCoordinates[0], startCoords[1], startCoords[0]);
+            const destDistance = haversineDistance(destCoordinates[1], destCoordinates[0], destCoords[1], destCoords[0]);
 
             // Calculate time difference if searchTimeMS is defined
-            let timeMatch = !searchTimeMS || Math.abs(ride.date - searchTimeMS) <= 30 * 60 * 1000;
+            const timeMatch = !searchTimeMS || Math.abs(ride.date - searchTimeMS) <= 30 * 60 * 1000;
 
-            // Check if ride matches the criteria
-            return startDistance <= 100 && destDistance <= 100 && timeMatch;
+            // Check if ride matches the criteria (distance less than 1 km for start and destination)
+            return startDistance <= 10 && destDistance <= 1000 && timeMatch;
         });
 
         // Update the rides array with the filtered rides
         rides = filteredRides;
     };
-
 </script>
 
 <style>
@@ -216,6 +243,10 @@
         <option value="Airport">Airport</option>
         <option value="Railway Station">Railway Station</option>
     </select>
+    <label for="startLatitude">Latitude:</label>
+    <input type="text" id="startLatitude" bind:value={startLatitude} placeholder="Enter Latitude">
+    <label for="startLongitude">Longitude:</label>
+    <input type="text" id="startLongitude" bind:value={startLongitude} placeholder="Enter Longitude">
 </div>
 
 <div>
@@ -226,6 +257,10 @@
         <option value="Airport">Airport</option>
         <option value="Railway Station">Railway Station</option>
     </select>
+    <label for="destLatitude">Latitude:</label>
+    <input type="text" id="destLatitude" bind:value={destLatitude} placeholder="Enter Latitude">
+    <label for="destLongitude">Longitude:</label>
+    <input type="text" id="destLongitude" bind:value={destLongitude} placeholder="Enter Longitude">
 </div>
 
 <div>

@@ -1,3 +1,4 @@
+<!-- src/rideDetails.svelte -->
 <script>
     import { onMount } from 'svelte';
     import { navigate } from 'svelte-routing';
@@ -172,6 +173,14 @@
             <span class="ride-details-label">Host's Phone Number:</span> {rideDetails.data.ride.host.phNo}
         </div>
         <div class="ride-details-item">
+            <span class="ride-details-label">Current Riders:</span>
+            <span>
+                {#each rideDetails.data.ride.riders as rider, index}
+                    {rider.name}{index !== rideDetails.data.ride.riders.length - 1 ? ', ' : ''}
+                {/each}
+            </span>
+        </div>
+        <div class="ride-details-item">
             <span class="ride-details-label">Start Point:</span> {formatLocation(rideDetails.data.ride.locationStart)}
         </div>
         <div class="ride-details-item">
@@ -180,6 +189,12 @@
         <div class="ride-details-item">
             <span class="ride-details-label">Date & Time:</span> {new Date(rideDetails.data.ride.dateTime).toLocaleString()}
         </div>
+        
+        {#if rideDetails.data.ride.otp !== 0}
+            <div class="ride-details-item">
+                <span class="ride-details-label">OTP:</span> {rideDetails.data.ride.otp}
+            </div>
+        {/if}
         
         {#if !rideDetails.data.userInRide}
             <button class="action-button" on:click={joinRide}>Join Ride</button>
