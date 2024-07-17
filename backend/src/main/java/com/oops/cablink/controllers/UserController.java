@@ -191,7 +191,7 @@ public class UserController {
         final User currentUser = (User)userResponse.data;
 
         ObjectId id = currentUser.getId();
-        rideRepository.deleteRidesByHost(id);
+        rideRepository.deleteRideByHost(id);
         rideRepository.removeRideByRiders(id);
 
         userRepository.deleteById(id);
