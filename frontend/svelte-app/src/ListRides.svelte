@@ -2,6 +2,8 @@
     import { onMount } from 'svelte';
     import { navigate } from 'svelte-routing';
     import { writable } from 'svelte/store';
+    import L from 'leaflet';
+    import 'leaflet/dist/leaflet.css';
 
     // Mode state: 0 for All Rides, 1 for My Rides
     const currentMode = writable(0);
@@ -179,7 +181,7 @@
         const filteredRides = rides.filter(ride => {
             const { coordinates: startCoords } = ride.locationStart;
             const { coordinates: destCoords } = ride.locationEnd;
-            console.log(startDistance)
+
             // Calculate distances from search coordinates to ride start and destination points
             const startDistance = haversineDistance(startCoordinates[1], startCoordinates[0], startCoords[1], startCoords[0]);
             const destDistance = haversineDistance(destCoordinates[1], destCoordinates[0], destCoords[1], destCoords[0]);
@@ -194,10 +196,98 @@
         // Update the rides array with the filtered rides
         rides = filteredRides;
     };
+
+    // Leaflet Map initialization
+    let map = null;
+    let startMarker = null;
+    let destMarker = null;
+
+    function initializeMap() {
+        // Default center (Hyderabad)
+        map = L.map('map').setView([17.385, 78.4867], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Add click event listener to map
+        map.on('click', onMapClick);
+
+        map.invalidateSize(); // Ensure the map size is correct initially
+
+        // Initialize markers if coordinates are already set
+        if (startLatitude && startLongitude) {
+            setStartMarker([startLatitude, startLongitude]);
+        }
+        if (destLatitude && destLongitude) {
+            setDestMarker([destLatitude, destLongitude]);
+        }
+    }
+
+    // Function to handle click on the map
+    // Function to handle click on the map
+    function onMapClick(e) {
+    const { lat, lng } = e.latlng;
+
+    // Determine whether to update start or destination coordinates
+    if (startPoint === '' && startLatitude === '' && startLongitude === '') {
+        startLatitude = lat.toFixed(6);
+        startLongitude = lng.toFixed(6);
+        setStartMarker([startLatitude, startLongitude]);
+    } else if (destination === '' && destLatitude === '' && destLongitude === '') {
+        destLatitude = lat.toFixed(6);
+        destLongitude = lng.toFixed(6);
+        setDestMarker([destLatitude, destLongitude]);
+    }
+}
+
+
+    // Function to set starting point marker
+    function setStartMarker(coordinates) {
+        if (startMarker) {
+            startMarker.setLatLng(coordinates);
+        } else {
+            startMarker = L.marker(coordinates).addTo(map);
+        }
+    }
+
+    // Function to set destination marker
+    function setDestMarker(coordinates) {
+        if (destMarker) {
+            destMarker.setLatLng(coordinates);
+        } else {
+            destMarker = L.marker(coordinates).addTo(map);
+        }
+    }
+
+    // Function to clear starting point coordinates
+    function clearStartCoordinates() {
+        startLatitude = '';
+        startLongitude = '';
+        if (startMarker) {
+            map.removeLayer(startMarker);
+            startMarker = null;
+        }
+    }
+
+    // Function to clear destination coordinates
+    function clearDestCoordinates() {
+        destLatitude = '';
+        destLongitude = '';
+        if (destMarker) {
+            map.removeLayer(destMarker);
+            destMarker = null;
+        }
+    }
+
+    // Lifecycle hook to initialize the map
+    onMount(() => {
+        initializeMap();
+    });
 </script>
 
 <style>
-    /* CSS styles remain the same */
+    /* Your existing CSS styles */
     .ride-list {
         max-height: 400px;
         overflow-y: auto;
@@ -224,6 +314,26 @@
     .ride-details span {
         font-weight: normal;
     }
+    /* Style for map container */
+    #map {
+        height: 300px; /* Set desired height */
+        width: 100%; /* Full width */
+        margin-top: 20px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        float: right; /* Align map container to the right */
+    }
+    /* Additional styles for coordinate inputs */
+    .coordinate-inputs {
+        float: left; /* Align input fields to the left */
+        margin-right: 20px;
+    }
+    .coordinate-clear {
+        margin-top: 10px;
+        font-size: 0.8em;
+        color: #007bff;
+        cursor: pointer;
+    }
 </style>
 
 <h1>List of Rides</h1>
@@ -235,32 +345,46 @@
     <button on:click={() => toggleMode(1)}>My Rides</button>
 </div>
 
-<div>
-    <label for="startPoint">Start Point:</label>
-    <select id="startPoint" bind:value={startPoint}>
-        <option value="">Select Start Point</option>
-        <option value="Campus">Campus</option>
-        <option value="Airport">Airport</option>
-        <option value="Railway Station">Railway Station</option>
-    </select>
-    <label for="startLatitude">Latitude:</label>
-    <input type="text" id="startLatitude" bind:value={startLatitude} placeholder="Enter Latitude">
-    <label for="startLongitude">Longitude:</label>
-    <input type="text" id="startLongitude" bind:value={startLongitude} placeholder="Enter Longitude">
+<div class="coordinate-inputs">
+    <div>
+        <label for="startPoint">Start Point:</label>
+        <select id="startPoint" bind:value={startPoint}>
+            <option value="">Select Start Point</option>
+            <option value="Campus">Campus</option>
+            <option value="Airport">Airport</option>
+            <option value="Railway Station">Railway Station</option>
+        </select>
+    </div>
+    <div>
+        <label for="startLatitude">Latitude:</label>
+        <input type="text" id="startLatitude" bind:value={startLatitude} placeholder="Enter Latitude">
+    </div>
+    <div>
+        <label for="startLongitude">Longitude:</label>
+        <input type="text" id="startLongitude" bind:value={startLongitude} placeholder="Enter Longitude">
+        <span class="coordinate-clear" on:click={clearStartCoordinates}>Clear</span>
+    </div>
 </div>
 
-<div>
-    <label for="destination">Destination:</label>
-    <select id="destination" bind:value={destination}>
-        <option value="">Select Destination</option>
-        <option value="Campus">Campus</option>
-        <option value="Airport">Airport</option>
-        <option value="Railway Station">Railway Station</option>
-    </select>
-    <label for="destLatitude">Latitude:</label>
-    <input type="text" id="destLatitude" bind:value={destLatitude} placeholder="Enter Latitude">
-    <label for="destLongitude">Longitude:</label>
-    <input type="text" id="destLongitude" bind:value={destLongitude} placeholder="Enter Longitude">
+<div class="coordinate-inputs">
+    <div>
+        <label for="destination">Destination:</label>
+        <select id="destination" bind:value={destination}>
+            <option value="">Select Destination</option>
+            <option value="Campus">Campus</option>
+            <option value="Airport">Airport</option>
+            <option value="Railway Station">Railway Station</option>
+        </select>
+    </div>
+    <div>
+        <label for="destLatitude">Latitude:</label>
+        <input type="text" id="destLatitude" bind:value={destLatitude} placeholder="Enter Latitude">
+    </div>
+    <div>
+        <label for="destLongitude">Longitude:</label>
+        <input type="text" id="destLongitude" bind:value={destLongitude} placeholder="Enter Longitude">
+        <span class="coordinate-clear" on:click={clearDestCoordinates}>Clear</span>
+    </div>
 </div>
 
 <div>
@@ -287,3 +411,6 @@
         </ul>
     {/if}
 </div>
+
+<!-- Map container -->
+<div id="map"></div>
