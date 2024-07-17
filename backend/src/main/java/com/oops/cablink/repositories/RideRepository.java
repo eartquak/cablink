@@ -1,9 +1,7 @@
 package com.oops.cablink.repositories;
 
 import com.oops.cablink.models.Ride;
-import com.oops.cablink.models.User;
 import org.bson.types.ObjectId;
-import org.springframework.data.mongodb.repository.DeleteQuery;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.Update;
@@ -26,6 +24,13 @@ public interface RideRepository extends MongoRepository<Ride, ObjectId> {
 
     @Query("{ _id: ObjectId('?0'), host: ObjectId('?1') }")
     Optional<Ride> isUserHost(ObjectId id, ObjectId host);
+
+    @Query(value = "{ host: ObjectId('?0') }", delete = true)
+    void deleteRideByHost(ObjectId id);
+
+    @Query("{ }")
+    @Update("{ $pull: { riders: ObjectId('?0') }, $inc: { seatsFilled: -1 } }")
+    void removeRideByRiders(ObjectId id);
 
     @Query("{ '_id': ObjectId('?0') }")
     @Update("{ $pull: { riders: ObjectId('?1') }, $inc: { seatsFilled: -1 } }")
