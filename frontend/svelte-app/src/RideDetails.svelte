@@ -6,6 +6,8 @@
     let rideDetails = null;
     let currentPath = '';
     let selectedRideId = '';
+    let eta = null
+    let api_key = '5b3ce3597851110001cf62489adf2d05add3418aacf88d3df1f3e551'
 
     const fetchRideDetails = async () => {
         currentPath = window.location.pathname;
@@ -17,6 +19,15 @@
                 rideDetails = await response.json();
             } else {
                 console.error('Failed to fetch ride details:', response.statusText);
+            }
+            const url = 'https://api.openrouteservice.org/v2/directions/driving-car?api_key=' + api_key + 
+                        '&start='+ rideDetails.data.ride.locationStart.coordinates[0] + ',' + rideDetails.data.ride.locationStart.coordinates[1] + 
+                        '&end=' + rideDetails.data.ride.locationEnd.coordinates[0] + ',' + rideDetails.data.ride.locationEnd.coordinates[1]
+            const etaResponse = await fetch(url);
+            if (etaResponse.ok) {
+                const data = await etaResponse.json();
+                eta = data.features[0].properties.summary.duration
+                console.log(eta)
             }
         } catch (error) {
             console.error('Error fetching ride details:', error);
@@ -156,6 +167,9 @@
         </div>
         <div class="ride-details-item">
             <span class="ride-details-label">Total Price:</span> {rideDetails.data.ride.price}
+        </div>
+        <div class="ride-details-item">
+            <span class="ride-details-label">Time(secs):</span> {eta}
         </div>
         <div class="ride-details-item">
             <span class="ride-details-label">Total Number of seats:</span> {rideDetails.data.ride.seats}
