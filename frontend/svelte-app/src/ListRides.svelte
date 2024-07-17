@@ -294,11 +294,12 @@
     onMount(() => {
         initializeMap();
     });
-</script><style>
+</script>
+<style>
     /* Grid container for layout control */
     .grid-container {
         display: grid;
-        grid-template-columns: 1fr 1fr; /* Two columns: equal width */
+        grid-template-columns: 1fr; /* Single column on mobile */
         gap: 20px; /* Gap between columns */
         height: 100vh; /* Set height of the grid container to full viewport height */
         overflow-y: auto; /* Enable vertical scrolling if content exceeds viewport height */
@@ -307,11 +308,13 @@
     /* Left side content styling */
     .left-content {
         padding-right: 20px;
+        padding-left: 20px;
     }
 
     /* Right side (ride list) styling */
     .right-content {
         padding-left: 20px;
+        padding-right: 20px;
     }
 
     /* Your existing CSS styles */
@@ -461,6 +464,6 @@
 </div>
 
 <!-- Map container -->
-<div style="width: 30%; display: grid; place-items: center; margin-top: 20px;">
+<div style="width: 100%; display: grid; place-items: center; margin-top: 20px;">
     <div id="map"></div>
 </div>
