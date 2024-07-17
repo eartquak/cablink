@@ -461,6 +461,6 @@
 </div>
 
 <!-- Map container -->
-<div style="width: 30%; display: grid; place-items: center; margin-top: 20px;">
+<div style="width: 50%; display: grid; place-items: center; margin-top: 20px;">
     <div id="map"></div>
 </div>
