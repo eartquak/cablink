@@ -4,6 +4,7 @@
     import { writable } from 'svelte/store';
     import L from 'leaflet';
     import 'leaflet/dist/leaflet.css';
+    import * as turf from '@turf/turf';
 
     // Mode state: 0 for All Rides, 1 for My Rides
     const currentMode = writable(0);
@@ -179,18 +180,26 @@
 
         // Filter rides based on the criteria
         const filteredRides = rides.filter(ride => {
-            const { coordinates: startCoords } = ride.locationStart;
-            const { coordinates: destCoords } = ride.locationEnd;
 
             // Calculate distances from search coordinates to ride start and destination points
-            const startDistance = haversineDistance(startCoordinates[1], startCoordinates[0], startCoords[1], startCoords[0]);
-            const destDistance = haversineDistance(destCoordinates[1], destCoordinates[0], destCoords[1], destCoords[0]);
+            var point1 = turf.point(ride.locationStart.coordinates);
+            var point2 = turf.point(ride.locationEnd.coordinates);
+
+            var point1s = turf.point(startCoordinates);
+            var point2s = turf.point(destCoordinates);
+
+            var startDistance = turf.distance(point1, point1s);
+            var destDistance = turf.distance(point2, point2s);
 
             // Calculate time difference if searchTimeMS is defined
             const timeMatch = !searchTimeMS || Math.abs(ride.date - searchTimeMS) <= 30 * 60 * 1000;
 
+            console.log(startDistance)
+            console.log(destDistance)
+            console.log(timeMatch)
+
             // Check if ride matches the criteria (distance less than 1 km for start and destination)
-            return startDistance <= 10 && destDistance <= 1000 && timeMatch;
+            return (startDistance <= 1) && (destDistance <= 1) && timeMatch;
         });
 
         // Update the rides array with the filtered rides
