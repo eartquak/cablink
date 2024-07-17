@@ -1,4 +1,3 @@
-<!-- EntryPage.svelte -->
 <script>
     import { onMount } from 'svelte';
     import { navigate } from 'svelte-routing';
@@ -6,6 +5,7 @@
     import L from 'leaflet';
     import 'leaflet/dist/leaflet.css';
     import * as turf from '@turf/turf';
+    
 
     // Mode state: 0 for All Rides, 1 for My Rides
     const currentMode = writable(0);
@@ -195,8 +195,12 @@
             // Calculate time difference if searchTimeMS is defined
             const timeMatch = !searchTimeMS || Math.abs(ride.date - searchTimeMS) <= 30 * 60 * 1000;
 
+            console.log(startDistance)
+            console.log(destDistance)
+            console.log(timeMatch)
+
             // Check if ride matches the criteria (distance less than 1 km for start and destination)
-            return (startDistance <= 1000) && (destDistance <= 1000) && timeMatch;
+            return (startDistance <= 1) && (destDistance <= 1) && timeMatch;
         });
 
         // Update the rides array with the filtered rides
@@ -231,20 +235,22 @@
     }
 
     // Function to handle click on the map
+    // Function to handle click on the map
     function onMapClick(e) {
-        const { lat, lng } = e.latlng;
+    const { lat, lng } = e.latlng;
 
-        // Determine whether to update start or destination coordinates
-        if (startPoint === '' && startLatitude === '' && startLongitude === '') {
-            startLatitude = lat.toFixed(6);
-            startLongitude = lng.toFixed(6);
-            setStartMarker([startLatitude, startLongitude]);
-        } else if (destination === '' && destLatitude === '' && destLongitude === '') {
-            destLatitude = lat.toFixed(6);
-            destLongitude = lng.toFixed(6);
-            setDestMarker([destLatitude, destLongitude]);
-        }
+    // Determine whether to update start or destination coordinates
+    if (startPoint === '' && startLatitude === '' && startLongitude === '') {
+        startLatitude = lat.toFixed(6);
+        startLongitude = lng.toFixed(6);
+        setStartMarker([startLatitude, startLongitude]);
+    } else if (destination === '' && destLatitude === '' && destLongitude === '') {
+        destLatitude = lat.toFixed(6);
+        destLongitude = lng.toFixed(6);
+        setDestMarker([destLatitude, destLongitude]);
     }
+}
+
 
     // Function to set starting point marker
     function setStartMarker(coordinates) {
@@ -289,7 +295,6 @@
         initializeMap();
     });
 </script>
-
 <style>
     /* Grid container for layout control */
     .grid-container {
@@ -320,7 +325,6 @@
         border: 1px solid #ccc;
         border-radius: 5px;
     }
-
     .ride-box {
         background-color: #ffffff;
         border: 1px solid #e0e0e0;
@@ -330,20 +334,16 @@
         cursor: pointer;
         transition: background-color 0.3s ease;
     }
-
     .ride-box:hover {
         background-color: #f5f5f5;
     }
-
     .ride-details {
         font-weight: bold;
         margin-bottom: 8px;
     }
-
     .ride-details span {
         font-weight: normal;
     }
-
     /* Style for map container */
     #map {
         height: 300px; /* Set desired height */
@@ -352,21 +352,17 @@
         border: 1px solid #ccc;
         margin-top: 20px;
     }
-
     /* Additional styles for coordinate inputs */
     .coordinate-inputs {
         margin-bottom: 20px;
     }
-
     .coordinate-inputs > div {
         margin-bottom: 10px;
     }
-
     .coordinate-inputs label {
         display: block;
         margin-bottom: 5px;
     }
-
     .coordinate-inputs input[type="text"],
     .coordinate-inputs select {
         width: 100%;
@@ -375,7 +371,6 @@
         border-radius: 4px;
         box-sizing: border-box;
     }
-
     .coordinate-clear {
         font-size: 0.8em;
         color: #007bff;
