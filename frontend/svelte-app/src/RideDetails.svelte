@@ -6,8 +6,10 @@
     let rideDetails = null;
     let currentPath = '';
     let selectedRideId = '';
-    let eta = null
-    let api_key = '5b3ce3597851110001cf62489adf2d05add3418aacf88d3df1f3e551'
+    let eta = null;
+    let api_key = '5b3ce3597851110001cf62489adf2d05add3418aacf88d3df1f3e551';
+    let locationS = '';
+    let locationE = '';
 
     const fetchRideDetails = async () => {
         currentPath = window.location.pathname;
@@ -29,6 +31,15 @@
                 eta = data.features[0].properties.summary.duration
                 console.log(eta)
             }
+            const urlG = 'https://photon.komoot.io/reverse?lon='+rideDetails.data.ride.locationStart.coordinates[0]+'&lat='+rideDetails.data.ride.locationStart.coordinates[1]
+            const locSResp = await fetch(urlG);
+            const ls = await locSResp.json();
+            locationS = ls.features[0].properties.name + ',' + ls.features[0].properties.street + ',' + ls.features[0].properties.postcode
+            const urlGE = 'https://photon.komoot.io/reverse?lon='+rideDetails.data.ride.locationEnd.coordinates[0]+'&lat='+rideDetails.data.ride.locationEnd.coordinates[1]
+            const locEResp = await fetch(urlGE);
+            const lsE = await locEResp.json();
+            locationE = lsE.features[0].properties.name + ',' + lsE.features[0].properties.street + ',' + lsE.features[0].properties.postcode
+            console.log(lsE);
         } catch (error) {
             console.error('Error fetching ride details:', error);
         }
@@ -192,10 +203,10 @@
             </span>
         </div>
         <div class="ride-details-item">
-            <span class="ride-details-label">Start Point:</span> {formatLocation(rideDetails.data.ride.locationStart)}
+            <span class="ride-details-label">Start Point:</span> {locationS}
         </div>
         <div class="ride-details-item">
-            <span class="ride-details-label">Destination:</span> {formatLocation(rideDetails.data.ride.locationEnd)}
+            <span class="ride-details-label">Destination:</span> {locationE}
         </div>
         <div class="ride-details-item">
             <span class="ride-details-label">Date & Time:</span> {new Date(rideDetails.data.ride.dateTime).toLocaleString()}
