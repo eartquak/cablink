@@ -91,8 +91,97 @@
 </script>
 
 <style>
-    /* Your existing CSS styles */
-    /* Ensure styles for dropdown and any related UI are added here */
+    /* Global styles */
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f3f6f8;
+    }
+
+    .registration-container {
+        text-align: center;
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        max-width: 400px; /* Limit width for better readability */
+        width: 90%; /* Ensure full width responsiveness */
+    }
+
+    .registration-container h2 {
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    .error-message {
+        color: #dc3545;
+        font-size: 0.9rem;
+        margin-top: 10px;
+        opacity: 1; /* Initially visible */
+        transition: opacity 0.3s ease-in-out;
+    }
+
+    .blink {
+        animation: blink-animation 1s steps(5, start) infinite;
+    }
+
+    @keyframes blink-animation {
+        to {
+            visibility: hidden;
+        }
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    label {
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    input[type="tel"],
+    select {
+        width: 100%;
+        padding: 8px;
+        margin: 6px 0;
+        font-size: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    input[type="tel"]:focus,
+    select:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.1rem rgba(0, 123, 255, 0.25);
+    }
+
+    small {
+        color: #6c757d;
+    }
+
+    button[type="submit"] {
+        padding: 12px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease-in-out;
+    }
+
+    button[type="submit"]:hover {
+        background-color: #0056b3;
+    }
 </style>
 
 <div class="registration-container">
@@ -100,7 +189,7 @@
     <p class="error-message" style="{errorMessage ? 'opacity: 1;' : 'opacity: 0;'}">{errorMessage}</p>
     <form on:submit|preventDefault={handleRegistration} on:input={resetError}>
         <label for="phNo">Phone Number:</label>
-        <input type="tel" id="phoneNumber" bind:value={phNo} required>
+        <input type="tel" id="phNo" bind:value={phNo} required>
         <small>Enter a 10-digit phone number.</small>
 
         <!-- Dropdown for selecting user type -->
