@@ -317,11 +317,10 @@
     /* Style for map container */
     #map {
         height: 300px; /* Set desired height */
-        width: 100%; /* Full width */
-        margin-top: 20px;
+        width: 150%; /* Full width */
         border-radius: 8px;
         border: 1px solid #ccc;
-        float: right; /* Align map container to the right */
+        margin-top: 20px;
     }
     /* Additional styles for coordinate inputs */
     .coordinate-inputs {
@@ -413,4 +412,6 @@
 </div>
 
 <!-- Map container -->
-<div id="map"></div>
+<div style="width: 300px; height: 200px; display: grid; place-items: center;">
+    <div id="map"></div>
+</div>
