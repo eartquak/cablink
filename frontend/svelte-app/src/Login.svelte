@@ -1,10 +1,29 @@
 <script>
-    // You can add any script logic here if needed
-    function redirectToGoogleLogin() {
+    async function checkUserAndRedirect() {
+    try {
+        const response = await fetch('api/user/me');
         
-        window.location = '/api';
+        if (response.status === 200) {
+            console.log('User exists, redirecting to entry page');
+            window.location = '/registration';
+        } else {
+            const data = await response.json();
+            if (data.data === "Could not find user") {
+                console.log(data.data);
+                window.location = '/registration';
+            } else {
+                console.log('Unexpected response:', data);
+                window.location = '/api';
+            }
+        }
+    } catch (error) {
+        console.error('Error checking user:', error);
+        // Handle network errors or other exceptions
+        window.location = '/api'; // Redirect to error page or default page
     }
+}
 </script>
+
 
 <style>
     /* Global styles */
@@ -52,5 +71,5 @@
 <div class="login-container">
     <img src="cab_logo.png" alt="Cab Logo" class="logo">
     <h2>Welcome</h2>
-    <button class="google-login" on:click={redirectToGoogleLogin}>Login with Google</button>
+    <button class="google-login" on:click={checkUserAndRedirect}>Login with Google</button>
 </div>

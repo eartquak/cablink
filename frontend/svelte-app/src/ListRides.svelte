@@ -293,9 +293,26 @@
     onMount(() => {
         initializeMap();
     });
-</script>
+</script><style>
+    /* Grid container for layout control */
+    .grid-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* Two columns: equal width */
+        gap: 20px; /* Gap between columns */
+        height: 100vh; /* Set height of the grid container to full viewport height */
+        overflow-y: auto; /* Enable vertical scrolling if content exceeds viewport height */
+    }
 
-<style>
+    /* Left side content styling */
+    .left-content {
+        padding-right: 20px;
+    }
+
+    /* Right side (ride list) styling */
+    .right-content {
+        padding-left: 20px;
+    }
+
     /* Your existing CSS styles */
     .ride-list {
         max-height: 400px;
@@ -326,101 +343,123 @@
     /* Style for map container */
     #map {
         height: 300px; /* Set desired height */
-        width: 150%; /* Full width */
+        width: 100%; /* Full width */
         border-radius: 8px;
         border: 1px solid #ccc;
         margin-top: 20px;
     }
     /* Additional styles for coordinate inputs */
     .coordinate-inputs {
-        float: left; /* Align input fields to the left */
-        margin-right: 20px;
+        margin-bottom: 20px;
+    }
+    .coordinate-inputs > div {
+        margin-bottom: 10px;
+    }
+    .coordinate-inputs label {
+        display: block;
+        margin-bottom: 5px;
+    }
+    .coordinate-inputs input[type="text"],
+    .coordinate-inputs select {
+        width: 100%;
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
     }
     .coordinate-clear {
-        margin-top: 10px;
         font-size: 0.8em;
         color: #007bff;
         cursor: pointer;
+        margin-left: 5px;
     }
 </style>
 
-<h1>List of Rides</h1>
+<div class="grid-container">
+    <!-- Left Side Content -->
+    <div class="left-content">
+        <h1>List of Rides</h1>
 
-<p>You can filter rides by time, distance, or both as per your preference. Enjoy!</p>
+        <p>You can filter rides by time, distance, or both as per your preference. Enjoy!</p>
 
-<div>
-    <button on:click={() => toggleMode(0)}>All Rides</button>
-    <button on:click={() => toggleMode(1)}>My Rides</button>
-</div>
+        <div>
+            <button on:click={() => toggleMode(0)}>All Rides</button>
+            <button on:click={() => toggleMode(1)}>My Rides</button>
+        </div>
 
-<div class="coordinate-inputs">
-    <div>
-        <label for="startPoint">Start Point:</label>
-        <select id="startPoint" bind:value={startPoint}>
-            <option value="">Select Start Point</option>
-            <option value="Campus">Campus</option>
-            <option value="Airport">Airport</option>
-            <option value="Railway Station">Railway Station</option>
-        </select>
+        <div class="coordinate-inputs">
+            <div>
+                <label for="startPoint">Start Point:</label>
+                <select id="startPoint" bind:value={startPoint}>
+                    <option value="">Select Start Point</option>
+                    <option value="Campus">Campus</option>
+                    <option value="Airport">Airport</option>
+                    <option value="Railway Station">Railway Station</option>
+                </select>
+            </div>
+            <div>
+                <label for="startLatitude">Latitude:</label>
+                <input type="text" id="startLatitude" bind:value={startLatitude} placeholder="Enter Latitude">
+            </div>
+            <div>
+                <label for="startLongitude">Longitude:</label>
+                <input type="text" id="startLongitude" bind:value={startLongitude} placeholder="Enter Longitude">
+                <span class="coordinate-clear" on:click={clearStartCoordinates}>Clear</span>
+            </div>
+        </div>
+
+        <div class="coordinate-inputs">
+            <div>
+                <label for="destination">Destination:</label>
+                <select id="destination" bind:value={destination}>
+                    <option value="">Select Destination</option>
+                    <option value="Campus">Campus</option>
+                    <option value="Airport">Airport</option>
+                    <option value="Railway Station">Railway Station</option>
+                </select>
+            </div>
+            <div>
+                <label for="destLatitude">Latitude:</label>
+                <input type="text" id="destLatitude" bind:value={destLatitude} placeholder="Enter Latitude">
+            </div>
+            <div>
+                <label for="destLongitude">Longitude:</label>
+                <input type="text" id="destLongitude" bind:value={destLongitude} placeholder="Enter Longitude">
+                <span class="coordinate-clear" on:click={clearDestCoordinates}>Clear</span>
+            </div>
+        </div>
+
+        <div>
+            <label for="searchDateTime">Search Date & Time:</label>
+            <input type="datetime-local" id="searchDateTime" bind:value={searchDateTime}>
+        </div>
+
+        <button on:click={searchRides}>Search Rides</button>
     </div>
-    <div>
-        <label for="startLatitude">Latitude:</label>
-        <input type="text" id="startLatitude" bind:value={startLatitude} placeholder="Enter Latitude">
-    </div>
-    <div>
-        <label for="startLongitude">Longitude:</label>
-        <input type="text" id="startLongitude" bind:value={startLongitude} placeholder="Enter Longitude">
-        <span class="coordinate-clear" on:click={clearStartCoordinates}>Clear</span>
-    </div>
-</div>
 
-<div class="coordinate-inputs">
-    <div>
-        <label for="destination">Destination:</label>
-        <select id="destination" bind:value={destination}>
-            <option value="">Select Destination</option>
-            <option value="Campus">Campus</option>
-            <option value="Airport">Airport</option>
-            <option value="Railway Station">Railway Station</option>
-        </select>
+    <!-- Right Side (Ride List) -->
+    <div class="right-content">
+        <div class="ride-list">
+            {#if rides.length === 0}
+                <p>No rides available.</p>
+            {:else}
+                <ul>
+                    {#each rides as ride}
+                        <li class="ride-box" on:click={() => navigateToRideDetails(ride.id)}>
+                            <div class="ride-details">Name: <span>{ride.name}</span></div>
+                            <div class="ride-details">Start Point: <span>{formatLocation(ride.locationStart)}</span></div>
+                            <div class="ride-details">Destination: <span>{formatLocation(ride.locationEnd)}</span></div>
+                            <div class="ride-details">Date & Time: <span>{new Date(ride.date).toLocaleString()}</span></div>
+                            <div class="ride-details">Host: <span>{ride.host ? ride.host.name : 'Unknown Host'}</span></div>
+                        </li>
+                    {/each}
+                </ul>
+            {/if}
+        </div>
     </div>
-    <div>
-        <label for="destLatitude">Latitude:</label>
-        <input type="text" id="destLatitude" bind:value={destLatitude} placeholder="Enter Latitude">
-    </div>
-    <div>
-        <label for="destLongitude">Longitude:</label>
-        <input type="text" id="destLongitude" bind:value={destLongitude} placeholder="Enter Longitude">
-        <span class="coordinate-clear" on:click={clearDestCoordinates}>Clear</span>
-    </div>
-</div>
-
-<div>
-    <label for="searchDateTime">Search Date & Time:</label>
-    <input type="datetime-local" id="searchDateTime" bind:value={searchDateTime}>
-</div>
-
-<button on:click={searchRides}>Search Rides</button>
-
-<div class="ride-list">
-    {#if rides.length === 0}
-        <p>No rides available.</p>
-    {:else}
-        <ul>
-            {#each rides as ride}
-                <li class="ride-box" on:click={() => navigateToRideDetails(ride.id)}>
-                    <div class="ride-details">Name: <span>{ride.name}</span></div>
-                    <div class="ride-details">Start Point: <span>{formatLocation(ride.locationStart)}</span></div>
-                    <div class="ride-details">Destination: <span>{formatLocation(ride.locationEnd)}</span></div>
-                    <div class="ride-details">Date & Time: <span>{new Date(ride.date).toLocaleString()}</span></div>
-                    <div class="ride-details">Host: <span>{ride.host ? ride.host.name : 'Unknown Host'}</span></div>
-                </li>
-            {/each}
-        </ul>
-    {/if}
 </div>
 
 <!-- Map container -->
-<div style="width: 300px; height: 200px; display: grid; place-items: center;">
+<div style="width: 30%; display: grid; place-items: center; margin-top: 20px;">
     <div id="map"></div>
 </div>
