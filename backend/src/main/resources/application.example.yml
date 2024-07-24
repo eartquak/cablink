@@ -1,0 +1,32 @@
+spring:
+    application:
+        name: cablink
+    data:
+        mongodb:
+            auto-index-creation: true
+            database: cablink
+            uri:
+    security:
+        oauth2:
+            client:
+                registration:
+                    google:
+                        client-id: 
+                        client-secret: 
+
+server:
+    port: 8082
+    servlet:
+        context-path: /api
+        session:
+            cookie:
+                http-only: true
+                path: /
+logging:
+    level:
+        org:
+            springframework:
+                data:
+                    mongodb:
+                        core:
+                            MongoTemplate: DEBUG
