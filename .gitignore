@@ -28,3 +28,5 @@ target/
 
 # idea files
 .idea/
+
+application.yml
